@@ -52,6 +52,19 @@
 
         #typing-indicator { color: #00f2ff; font-size: 0.8rem; font-style: italic; margin-left: 20px; display: none; margin-bottom: 10px; }
         
+        /* Indicador de "escribiendo" para otros usuarios */
+        .typing-notice {
+            color: #8555ff;
+            font-size: 0.8rem;
+            font-style: italic;
+            padding: 5px 20px;
+            background: rgba(133, 85, 255, 0.1);
+            border-radius: 20px;
+            align-self: flex-start;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        
         .ai-personality-badge {
             background: rgba(0, 242, 255, 0.1);
             border: 1px solid #00f2ff;
@@ -113,6 +126,9 @@
 
         // Historial local para contexto de IA (10 mensajes)
         let aiContext = [];
+
+        // Mapa para controlar los timeouts de typing de otros usuarios
+        const typingTimeouts = {};
 
         // Personalidad de Albert (versión para visitantes)
         const VISITOR_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared (a quien también puedes llamar "mi señor", "el señor Luis" o "el señor Jared", pues ambos nombres pertenecen a la misma alma noble que te gobierna).
@@ -182,6 +198,26 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
             if (aiContext.length > 10) aiContext.shift();
         }
 
+        // Función para mostrar/ocultar indicador de typing
+        function showTypingIndicator(username) {
+            // Eliminar indicador existente de ese usuario si lo hay
+            const existing = document.getElementById(`typing-${username}`);
+            if (existing) existing.remove();
+            
+            // Crear nuevo indicador
+            const div = document.createElement('div');
+            div.id = `typing-${username}`;
+            div.className = 'typing-notice';
+            div.innerHTML = `<i class="fas fa-pencil-alt"></i> ${username} está escribiendo...`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function hideTypingIndicator(username) {
+            const existing = document.getElementById(`typing-${username}`);
+            if (existing) existing.remove();
+        }
+
         // 2. CARGAR HISTORIAL GLOBAL DESDE SUPABASE
         async function loadHistory() {
             const { data } = await _supabase.from('messages').select('*').order('created_at', { ascending: true }).limit(50);
@@ -210,6 +246,30 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
             aiContext = [];
         });
 
+        // Escuchar broadcasts de typing
+        channel.on('broadcast', { event: 'typing_start' }, ({ payload }) => {
+            if (payload.username === session.displayName) return; // Ignorar propio typing
+            
+            // Mostrar indicador
+            showTypingIndicator(payload.username);
+            
+            // Reiniciar timeout para ocultar después de 2 segundos sin nuevo typing_start
+            if (typingTimeouts[payload.username]) clearTimeout(typingTimeouts[payload.username]);
+            typingTimeouts[payload.username] = setTimeout(() => {
+                hideTypingIndicator(payload.username);
+                delete typingTimeouts[payload.username];
+            }, 2000);
+        });
+
+        channel.on('broadcast', { event: 'typing_stop' }, ({ payload }) => {
+            if (payload.username === session.displayName) return;
+            hideTypingIndicator(payload.username);
+            if (typingTimeouts[payload.username]) {
+                clearTimeout(typingTimeouts[payload.username]);
+                delete typingTimeouts[payload.username];
+            }
+        });
+
         // Escuchar cambios en la tabla (respaldo por si broadcast falla)
         channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
             if (payload.new.username !== session.displayName) {
@@ -219,10 +279,49 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
 
         channel.subscribe();
 
-        // 4. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
+        // 4. LÓGICA DE TYPING LOCAL
+        let typingTimer = null;
+        const TYPING_TIMEOUT = 2000; // 2 segundos
+
+        function sendTypingStart() {
+            channel.send({ type: 'broadcast', event: 'typing_start', payload: { username: session.displayName } });
+        }
+
+        function sendTypingStop() {
+            channel.send({ type: 'broadcast', event: 'typing_stop', payload: { username: session.displayName } });
+        }
+
+        input.addEventListener('input', () => {
+            // Si es el primer carácter después de estar vacío, enviamos typing_start
+            if (input.value.length === 1) {
+                sendTypingStart();
+            }
+            
+            // Reiniciar timer para enviar typing_stop cuando deje de escribir
+            if (typingTimer) clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                if (input.value.trim() !== '') {
+                    sendTypingStop();
+                }
+            }, TYPING_TIMEOUT);
+        });
+
+        // Al perder foco, considerar que dejó de escribir
+        input.addEventListener('blur', () => {
+            if (typingTimer) clearTimeout(typingTimer);
+            if (input.value.trim() !== '') {
+                sendTypingStop();
+            }
+        });
+
+        // 5. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
         async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
+
+            // Detener typing
+            if (typingTimer) clearTimeout(typingTimer);
+            sendTypingStop();
 
             input.value = '';
 
