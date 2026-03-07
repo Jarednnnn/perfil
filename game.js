@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // 1. CONFIGURATION & PLACEHOLDERS
     const SUPABASE_URL = "https://ycghvncnbricgararymx.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00";
-    const DEEPSEEK_API_KEY = "sk-da00d2ec4c34442395053a61a089de93";
+    const SUPABASE_ANON_KEY = "TU_SUPABASE_ANON_KEY"; // Pega aquí tu clave anon
+    const GROQ_API_KEY = "TU_GROQ_API_KEY"; // Pega aquí tu clave gsk_...
 
     let supabase = null;
     if (window.supabase && SUPABASE_URL.startsWith('http')) {
@@ -237,28 +237,27 @@ document.addEventListener("DOMContentLoaded", () => {
             return `Un planeta ${types[typeInd]} ${features[featInd]}. La atmósfera parece estable pero misteriosa.`;
         }
 
-        // DeepSeek AI Integration
+        // AI Lore Integration (Ahora usando Groq)
         async function fetchLore() {
-            if (DEEPSEEK_API_KEY.includes("YOUR")) {
+            if (!GROQ_API_KEY || GROQ_API_KEY.includes("TU_")) {
                 planetDesc.innerText = getLocalLore();
                 return;
             }
             
             try {
-                const response = await fetch("https://api.deepseek.com/chat/completions", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                        "Authorization": `Bearer ${GROQ_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
+                        model: "llama-3.3-70b-versatile",
                         messages: [
                             { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (máximo 15 palabras) para un planeta." },
                             { role: "user", content: `Crea una descripción corta para un planeta de color ${star.color} en el sistema ${star.id}.` }
                         ],
-                        stream: false
+                        max_tokens: 100
                     })
                 });
                 
@@ -267,11 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.choices && data.choices[0]) {
                     planetDesc.innerText = data.choices[0].message.content;
                 } else {
-                    console.warn("API Error, using fallback:", data.error);
+                    console.warn("AI Error, using fallback:", data.error);
                     planetDesc.innerText = getLocalLore();
                 }
             } catch (e) {
-                console.error("DeepSeek Fetch Error, using fallback:", e);
+                console.error("AI Fetch Error, using fallback:", e);
                 planetDesc.innerText = getLocalLore();
             }
         }
@@ -305,5 +304,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.onclick = () => switchView('galaxy');
+    });
+
+    // Landing logic
+    document.getElementById('visit-planet')?.addEventListener('click', async () => {
+        if (!state.user) return;
+        
+        const btn = document.getElementById('visit-planet');
+        btn.disabled = true;
+        btn.innerText = "Aterrizando...";
+
+        const fuelEl = document.getElementById('hud-fuel');
+        const creditsEl = document.getElementById('hud-credits');
+        
+        let currentFuel = parseInt(fuelEl.innerText);
+        let currentCredits = parseInt(creditsEl.innerText);
+
+        if (currentFuel >= 10) {
+            currentFuel -= 10;
+            currentCredits += 25;
+            
+            fuelEl.innerText = currentFuel;
+            creditsEl.innerText = currentCredits;
+
+            alert(`🚀 ¡Aterrizaje exitoso! Has obtenido 25 créditos. Combustible restante: ${currentFuel}%`);
+            
+            if (supabase) {
+                try {
+                    await supabase.from('profiles').update({ 
+                        fuel: currentFuel, 
+                        credits: currentCredits 
+                    }).eq('id', state.user.id);
+                } catch (e) {
+                    console.error("Supabase Save Error:", e);
+                }
+            }
+            switchView('galaxy');
+        } else {
+            alert("⚠️ ¡Combustible insuficiente para aterrizar!");
+        }
+
+        btn.disabled = false;
+        btn.innerText = "Aterrizar";
     });
 });
