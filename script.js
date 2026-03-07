@@ -3,22 +3,32 @@
 // ==========================================
 const supabaseUrl = 'https://ycghvncnbricgararymx.supabase.co'; 
 const supabaseKey = 'sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00';
-const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const _supabase = typeof supabase !== 'undefined' ? supabase.createClient(supabaseUrl, supabaseKey) : null;
 
-// FUNCIÓN GLOBAL PARA GUARDAR (Para todos los usuarios)
+// FUNCIÓN GLOBAL PARA GUARDAR MENSAJES
 window.saveMessage = async (username, content) => {
+    if (!_supabase) return;
     const { data, error } = await _supabase
         .from('messages') 
         .insert([{ username: username, content: content }]);
 
-    if (error) console.error("Error al enviar al Reino:", error.message);
+    if (error) console.error("Error al guardar:", error.message);
 }
 
-// ==========================================
-// 2. LÓGICA DE INTERFAZ Y EFECTOS
-// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    // Reloj en Vivo (Tu código original)
+    
+    // --- CORRECCIÓN DE REDIRECCIÓN ---
+    const authBtn = document.getElementById('game-auth-btn');
+    if (authBtn) {
+        authBtn.onclick = (e) => {
+            e.preventDefault();
+            // Si ya hay sesión, vamos al chat. Si no, al login.
+            const session = sessionStorage.getItem('jared_realm_session');
+            window.location.href = session ? 'chat.html' : 'login.html';
+        };
+    }
+
+    // --- RELOJ EN VIVO ---
     function updateClock() {
         const timeEl = document.getElementById('live-time');
         if(!timeEl) return;
@@ -28,21 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Partículas (Tu configuración original)
+    // --- PARTÍCULAS (Configuración Original) ---
     if(window.particlesJS && document.getElementById('particles-js')) {
         particlesJS("particles-js", {
             "particles": {
-              "number": { "value": 40, "density": { "enable": true, "value_area": 1000 } },
-              "color": { "value": "#8555ff" },
-              "opacity": { "value": 0.3 },
-              "size": { "value": 3 },
-              "line_linked": { "enable": true, "distance": 200, "color": "#8555ff", "opacity": 0.15 },
-              "move": { "enable": true, "speed": 1 }
+                "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#8555ff" },
+                "opacity": { "value": 0.3 },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#8555ff", "opacity": 0.2 },
+                "move": { "enable": true, "speed": 1 }
             }
         });
     }
 
-    // Lógica de Logout
+    // --- LOGOUT ---
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         sessionStorage.removeItem('jared_realm_session');
         window.location.href = 'index.html';
