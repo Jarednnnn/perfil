@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // 1. CONFIGURATION & PLACEHOLDERS
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-    const DEEPSEEK_API_KEY = "YOUR_DEEPSEEK_API_KEY";
+    const SUPABASE_URL = "YOUR_SUPABASE_URL"; // Necesito tu URL de Supabase (ej: https://xyz.supabase.co)
+    const SUPABASE_ANON_KEY = "sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00";
+    const DEEPSEEK_API_KEY = "sk-da00d2ec4c34442395053a61a089de93";
 
     let supabase = null;
     if (window.supabase && SUPABASE_URL.startsWith('http')) {
@@ -226,7 +226,40 @@ document.addEventListener("DOMContentLoaded", () => {
         drawPlanet();
 
         planetName.innerText = `Sistema ${star.id}`;
-        planetDesc.innerText = "Sincronizando con DeepSeek... (Procedural Generation In Progress)";
+        planetDesc.innerText = "Sincronizando con DeepSeek...";
+
+        // DeepSeek AI Integration
+        async function fetchLore() {
+            if (DEEPSEEK_API_KEY.includes("YOUR")) return;
+            
+            try {
+                const response = await fetch("https://api.deepseek.com/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [
+                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (2 frase) para un planeta." },
+                            { role: "user", content: `Crea una descripción corta para un planeta de color ${star.color} en el sistema ${star.id}.` }
+                        ],
+                        max_tokens: 100
+                    })
+                });
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    planetDesc.innerText = data.choices[0].message.content;
+                } else {
+                    planetDesc.innerText = "Error en la señal de la IA. Lore perdido en el vacío.";
+                }
+            } catch (e) {
+                console.error("DeepSeek Error:", e);
+                planetDesc.innerText = "No hay conexión con la red de lore interestelar.";
+            }
+        }
+        fetchLore();
     }
 
     // 6. EVENT LISTENERS
