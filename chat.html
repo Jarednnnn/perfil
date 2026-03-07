@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jared Realm - AI Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        #chat-section {
+            width: 100%;
+            max-width: 420px;
+            height: 90vh;
+            max-height: 550px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(133, 85, 255, 0.3);
+            box-shadow: 0 0 30px rgba(133, 85, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+        }
+
+        h1 i {
+            color: #8555ff;
+            margin-right: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(133,85,255,0.2);
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8555ff, #f97316);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-info h3 {
+            color: #fff;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .user-info p {
+            color: #888;
+            font-size: 0.7rem;
+            margin: 2px 0 0;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            background: transparent;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            max-width: 85%;
+        }
+
+        .message-ai {
+            background: rgba(133, 85, 255, 0.2);
+            margin-right: auto;
+        }
+
+        .message-user {
+            background: rgba(74, 222, 128, 0.2);
+            margin-left: auto;
+        }
+
+        .message-sender {
+            font-size: 0.7rem;
+            color: #8555ff;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .message-user .message-sender {
+            color: #4ade80;
+        }
+
+        .message-text {
+            color: #e0e0e0;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(133, 85, 255, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #8555ff;
+        }
+
+        .chat-input-area input::placeholder {
+            color: #666;
+        }
+
+        .chat-input-area button {
+            width: auto;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #8555ff, #6b21a8);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .chat-input-area button:hover {
+            background: linear-gradient(135deg, #9666ff, #7b2ea8);
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-section">
+        <div class="chat-header">
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <div class="user-info">
+                <h3 id="current-user-name">Cargando...</h3>
+                <p>Chateando con Grok AI</p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Salir</button>
+        </div>
+
+        <div id="chat-messages"></div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const GROQ_API_KEY = "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";
+        
+        let currentUser = null;
+        let chatHistory = [];
+
+        function loadSession() {
+            const realmSession = sessionStorage.getItem('jared_realm_session');
+            if (!realmSession) {
+                window.location.href = 'login.html';  // Cambiado de universe.html a login.html
+                return false;
+            }
+            try {
+                const session = JSON.parse(realmSession);
+                currentUser = { 
+                    username: session.username, 
+                    displayName: session.displayName 
+                };
+                document.getElementById('current-user-name').textContent = currentUser.displayName;
+                return true;
+            } catch (e) {
+                window.location.href = 'login.html';  // Cambiado de universe.html a login.html
+                return false;
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('jared_realm_session');
+            window.location.href = 'login.html';  // Cambiado de universe.html a login.html
+        }
+
+        function loadChatHistory() {
+            const saved = localStorage.getItem('global_chat_history');
+            chatHistory = saved ? JSON.parse(saved) : [];
+            
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#666;padding:20px;"><i class="fas fa-robot" style="font-size:1.5rem;color:#8555ff;margin-bottom:8px;display:block;"></i>¡Hola! Soy Grok AI. ¿En qué puedo ayudarte?</div>';
+            } else {
+                chatHistory.forEach(msg => addMessageToUI(msg.sender, msg.text, false));
+            }
+        }
+
+        function saveChatHistory() {
+            if (chatHistory.length > 100) chatHistory = chatHistory.slice(-100);
+            localStorage.setItem('global_chat_history', JSON.stringify(chatHistory));
+        }
+
+        function addMessage(sender, text) {
+            chatHistory.push({ sender, text, time: Date.now() });
+            saveChatHistory();
+            addMessageToUI(sender, text, true);
+        }
+
+        function addMessageToUI(sender, text, scroll) {
+            const container = document.getElementById('chat-messages');
+            const isAI = sender === 'AI';
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isAI ? 'message-ai' : 'message-user'}`;
+            msgDiv.innerHTML = `
+                <div class="message-sender"><i class="fas ${isAI ? 'fa-robot' : 'fa-user'}"></i> ${isAI ? 'AI' : sender}</div>
+                <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
+            `;
+            
+            container.appendChild(msgDiv);
+            if (scroll) container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message || !currentUser) return;
+            
+            input.value = '';
+            input.focus();
+            
+            if (message.toLowerCase() === '/clear') {
+                chatHistory = [];
+                saveChatHistory();
+                document.getElementById('chat-messages').innerHTML = '<div style="text-align:center;color:#666;padding:20px;">Historial borrado</div>';
+                return;
+            }
+            
+            addMessage(currentUser.displayName, message);
+            
+            const container = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.style.cssText = 'color:#888;font-style:italic;padding:5px;';
+            typingDiv.innerHTML = '<i class="fas fa-ellipsis-h"></i> Escribiendo...';
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "Authorization": `Bearer ${GROQ_API_KEY}` 
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { role: "system", content: "Eres Grok AI, un asistente útil y conversacional." },
+                            ...chatHistory.slice(-10).map(m => ({
+                                role: m.sender === 'AI' ? 'assistant' : 'user',
+                                content: m.text
+                            })),
+                            { role: "user", content: message }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 500
+                    })
+                });
+                
+                const data = await res.json();
+                const response = data.choices?.[0]?.message?.content || "Lo siento, no pude generar una respuesta.";
+                
+                document.getElementById('typing-indicator')?.remove();
+                addMessage('AI', response);
+                
+            } catch (error) {
+                console.error('Chat error:', error);
+                document.getElementById('typing-indicator')?.remove();
+                addMessage('AI', 'Error de conexión. Intenta de nuevo.');
+            }
+        }
+
+        window.onload = function() {
+            if (loadSession()) {
+                loadChatHistory();
+                document.getElementById('chat-input').focus();
+            }
+        };
+    </script>
+</body>
+</html>
