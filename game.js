@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // 1. CONFIGURATION & PLACEHOLDERS
-    const SUPABASE_URL = "YOUR_SUPABASE_URL"; // Necesito tu URL de Supabase (ej: https://xyz.supabase.co)
+    const SUPABASE_URL = "https://ycghvncnbricgararymx.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00";
     const DEEPSEEK_API_KEY = "sk-da00d2ec4c34442395053a61a089de93";
 
