@@ -237,26 +237,33 @@ document.addEventListener("DOMContentLoaded", () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "Accept": "application/json",
                         "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (2 frase) para un planeta." },
+                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (máximo 20 palabras) para un planeta." },
                             { role: "user", content: `Crea una descripción corta para un planeta de color ${star.color} en el sistema ${star.id}.` }
                         ],
-                        max_tokens: 100
+                        stream: false
                     })
                 });
+                
                 const data = await response.json();
+                console.log("DeepSeek Output:", data);
+
                 if (data.choices && data.choices[0]) {
                     planetDesc.innerText = data.choices[0].message.content;
+                } else if (data.error) {
+                    planetDesc.innerText = `Error IA: ${data.error.message || "Falla técnica"}`;
+                    console.error("DeepSeek API Error:", data.error);
                 } else {
-                    planetDesc.innerText = "Error en la señal de la IA. Lore perdido en el vacío.";
+                    planetDesc.innerText = "Error: Respuesta de IA incompleta.";
                 }
             } catch (e) {
-                console.error("DeepSeek Error:", e);
-                planetDesc.innerText = "No hay conexión con la red de lore interestelar.";
+                console.error("DeepSeek Fetch Error:", e);
+                planetDesc.innerText = "Error de conexión con DeepSeek. ¿CORS o Red?";
             }
         }
         fetchLore();
