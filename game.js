@@ -140,22 +140,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function switchView(view) {
+        console.log("Switching view to:", view);
         state.currentView = view;
         
-        // Use explicit display styles for maximum reliability
-        if (authView) authView.style.display = (view === 'auth') ? 'block' : 'none';
-        if (gameHud) gameHud.style.display = (view === 'galaxy') ? 'flex' : 'none';
-        if (planetModal) planetModal.style.setProperty('display', (view === 'planet' ? 'block' : 'none'), 'important');
+        // Remove 'hidden' class and set explicit display
+        if (authView) {
+            authView.classList.add('hidden');
+            authView.style.display = 'none';
+        }
+        if (gameHud) {
+            gameHud.classList.add('hidden');
+            gameHud.style.display = 'none';
+        }
+        if (planetModal) {
+            planetModal.classList.add('hidden');
+            planetModal.style.display = 'none';
+        }
 
-        if (view === 'galaxy') {
-            // Give layout a frame to update
+        if (view === 'auth' && authView) {
+            authView.classList.remove('hidden');
+            authView.style.display = 'block';
+        } else if (view === 'galaxy' && gameHud) {
+            gameHud.classList.remove('hidden');
+            gameHud.style.display = 'flex';
+            
             setTimeout(() => {
                 if (galaxyCanvas && galaxyCanvas.parentElement) {
                     galaxyCanvas.width = galaxyCanvas.parentElement.offsetWidth;
                     galaxyCanvas.height = galaxyCanvas.parentElement.offsetHeight;
+                    console.log("Canvas resized:", galaxyCanvas.width, galaxyCanvas.height);
                 }
                 requestAnimationFrame(drawGalaxy);
-            }, 50);
+            }, 100);
+        } else if (view === 'planet' && planetModal) {
+            planetModal.classList.remove('hidden');
+            planetModal.style.display = 'block';
         }
     }
 
@@ -212,15 +231,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const userInp = document.getElementById('auth-email').value.trim();
         const passInp = document.getElementById('auth-pass').value.trim();
 
+        console.log("Attempting login with:", userInp);
+
         // Internal credential check
         if (userInp.toLowerCase() === 'jared.nnnn' && passInp === 'teamomama') {
+            console.log("Login success!");
             state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
             document.getElementById('user-display').innerText = state.user.email;
             
-            // Success flow
             switchView('galaxy');
             initControls();
         } else {
+            console.error("Login failed: Invalid credentials");
             alert('❌ Acceso Denegado: Usuario o contraseña incorrectos.');
         }
     });
