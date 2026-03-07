@@ -104,9 +104,9 @@
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            // Actualizar contexto para Albert
+            // Actualizar contexto para Albert (mantener últimos 10 mensajes)
             aiContext.push({ role: isAi ? 'assistant' : 'user', content: text });
-            if (aiContext.length > 15) aiContext.shift();
+            if (aiContext.length > 10) aiContext.shift();
         }
 
         // 2. CARGAR HISTORIAL GLOBAL DESDE SUPABASE
@@ -132,6 +132,14 @@
             if (!text) return;
 
             input.value = '';
+
+            // Comando /restart: limpia solo la vista local y el contexto
+            if (text.toLowerCase() === '/restart') {
+                chatBox.innerHTML = '';
+                aiContext = [];
+                return;
+            }
+
             // Guardar y mostrar mensaje del usuario
             appendMsg(session.displayName, text);
             await window.saveMessage(session.displayName, text);
