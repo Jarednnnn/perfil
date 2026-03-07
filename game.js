@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const passInp = document.getElementById('auth-pass').value;
 
         // Internal credential check
-        if ((userInp === 'Jared.nnnn' || userInp === 'jared.nnnn@example.com') && passInp === 'teamomama') {
+        if (userInp === 'Jared.nnnn' && passInp === 'teamomama') {
             state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
             document.getElementById('user-display').innerText = state.user.email;
             switchView('galaxy');
