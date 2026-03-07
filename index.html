@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTree - Anime Style</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Contenedor de partículas/efectos en el fondo -->
+    <div id="particles-js"></div>
+
+    <div class="dashboard-wrapper">
+        <!-- HEADER PRINCIPAL -->
+        <header class="top-nav">
+            <div class="logo-area">
+                <i class="fas fa-meteor logo-icon"></i>
+                <div class="logo-text">
+                    <span class="logo-title">jared-realm</span>
+                    <span class="logo-subtitle">ジャレッド領域</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            
+            <!-- ====== COLUMNA IZQUIERDA: PERFIL ====== -->
+            <aside class="profile-sidebar">
+                <div class="banner-img" style="background-image: url('https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXF1d2M5NW5ocHc5eWV5a2EwOWF4dHoyOXl3ZDljM3o2MnoyOHY2aiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RKp3DW2ZwDlVS/giphy.gif');"></div>
+                <div class="profile-info-box">
+                    <div class="avatar-container">
+                        <!-- Imagen de avatar (DiceBear para evitar links rotos, estilo anime/vector) -->
+                        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2I4bWNrZXpzMG9ldW41eDV4eDE0bnZ2ZGQybXIwa3FhcWN3d2xscyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mTxQlVm7Q6wrL5f9O5/giphy.gif" alt="Avatar" class="avatar-img">
+                        <div class="status-indicator"></div>
+                        <div class="status-bubble"><img src="https://media.tenor.com/_q1Z3Tj5FQQAAAAi/bocchi-the-rock-bocchi.gif" alt="gif" style="height: 18px; width: 18px; vertical-align: middle; border-radius: 4px; margin-right: 4px; object-fit: cover;"> ¡Bienvenido a mi reino digital!</div>
+                    </div>
+                    
+                    <h1 class="profile-name">Jared.nnnn</h1>
+                    <div class="profile-meta">
+                        <span>jared_nnnn</span> • <span>he/him</span> • <span class="badge-moe">⭐ DEV</span>
+                    </div>
+
+                    <div class="tech-icons">
+                        <i class="fab fa-react"></i> <i class="fab fa-python"></i> <i class="fab fa-linux"></i> <i class="fab fa-github"></i> <i class="fas fa-terminal"></i>
+                    </div>
+
+                    <p class="profile-bio">
+                        Desarrollador & Sysadmin | En línea 24/7
+                    </p>
+
+                    <div class="time-widget">
+                        <span class="location-flag"><i class="fas fa-globe"></i></span>
+                        <span id="live-time" class="time-text">Cargando hora...</span>
+                    </div>
+
+                    <div class="role-tags">
+                        <span class="tag admin-tag"><span class="dot"></span> Administrador</span>
+                        <span class="tag dev-tag"><span class="dot"></span> Desarrollador</span>
+                        <span class="tag nerd-tag"><span class="dot"></span> Nerd</span>
+                    </div>
+
+                    <!-- Mini Gif decorativo en sidebar -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://media.tenor.com/_q1Z3Tj5FQQAAAAi/bocchi-the-rock-bocchi.gif" alt="Bocchi Headpat" style="border-radius: 10px; width: 100%; max-height: 80px; object-fit: cover; opacity: 0.8;">
+                    </div>
+                    
+                    <!-- Running Pokemons -->
+                    <div class="pokemon-marquee" style="margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                        <marquee direction="left" scrollamount="4" behavior="scroll">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="Pikachu" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif" alt="Eevee" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="Gengar" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif" alt="Bulbasaur" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/4.gif" alt="Charmander" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/7.gif" alt="Squirtle" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/151.gif" alt="Mew" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
+                        </marquee>
+                    </div>
+
+                    <!-- Spotify Widget -->
+                    <div class="spotify-widget">
+                        <div class="spotify-logo"><i class="fab fa-spotify"></i> Spotify - Mi Playlist</div>
+                        <div class="spotify-playlist">
+                            <!-- Canción 1 -->
+                            <div class="track-info active-track">
+                                <div class="track-number">1</div>
+                                <img src="https://i.pinimg.com/736x/db/69/83/db698334e90cb9a7d9166aff560436dd.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">dont dumb trip baby</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                                <div class="music-bars">
+                                    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                </div>
+                            </div>
+                            <!-- Canción 2 -->
+                            <div class="track-info">
+                                <div class="track-number">2</div>
+                                <img src="https://i.pinimg.com/736x/db/69/83/db698334e90cb9a7d9166aff560436dd.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">stay here 4 life</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 3 -->
+                            <div class="track-info">
+                                <div class="track-number">3</div>
+                                <img src="https://i.pinimg.com/webp/736x/fe/6a/88/fe6a88de23e425a99d1f83ac2d1f85a3.webp" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Les</div>
+                                    <div class="track-artist">Childish Gambino</div>
+                                </div>
+                            </div>
+                            <!-- Canción 4 -->
+                            <div class="track-info">
+                                <div class="track-number">4</div>
+                                <img src="https://i.pinimg.com/webp/736x/1e/eb/e3/1eebe34cd5ab0d3294ec524f0354e97e.webp" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Hell</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 5 -->
+                            <div class="track-info">
+                                <div class="track-number">5</div>
+                                <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">L$D</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 6 -->
+                            <div class="track-info">
+                                <div class="track-number">6</div>
+                                <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Praise The Lord (Da Shine)</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 7 -->
+                            <div class="track-info">
+                                <div class="track-number">7</div>
+                                <img src="https://i.pinimg.com/736x/19/a5/8a/19a58ab13a6c821738ffab6fa043e6a4.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Sundress</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 8 -->
+                            <div class="track-info">
+                                <div class="track-number">8</div>
+                                <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">A$AP Forever</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 9 -->
+                            <div class="track-info">
+                                <div class="track-number">9</div>
+                                <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Everyday</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                            <!-- Canción 10 -->
+                            <div class="track-info">
+                                <div class="track-number">10</div>
+                                <img src="https://i.pinimg.com/webp/736x/1e/eb/e3/1eebe34cd5ab0d3294ec524f0354e97e.webp" alt="Album" class="track-img">
+                                <div class="track-details">
+                                    <div class="track-name">Fashion Killa</div>
+                                    <div class="track-artist">A$AP Rocky</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ====== COLUMNA DERECHA: CONTENIDO ====== -->
+            <section class="main-content">
+                
+                <!-- BENTO BOX 1: ABOUT ME -->
+                <div class="bento-card about-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-user"></i></div>
+                        <div>
+                            <h2 class="card-title">SOBRE MÍ</h2>
+                            <p class="card-subtitle">Un vistazo a quién soy</p>
+                        </div>
+                    </div>
+                    
+                    <div class="about-grid">
+                        <div class="inner-box">
+                            <h3 class="inner-title"><i class="fas fa-user-circle"></i> QUIÉN SOY</h3>
+                            <p class="inner-text">Aprendiz de TI de 18 años y trasteador de sistemas. Obsesionado con la tecnología, el espacio y todo lo que zumba, parpadea o arranca. Funciono a base de curiosidad y buena música. También me encanta leer libros.</p>
+                        </div>
+                        <div class="inner-box">
+                            <h3 class="inner-title"><i class="fas fa-bolt"></i> QUÉ HAGO</h3>
+                            <p class="inner-text">Principalmente construyo, rompo y arreglo sistemas, a veces todo a la vez. Desde homelabs y servidores hasta proyectos web creativos, me encanta hacer que las cosas funcionen y se vean geniales haciéndolo :3 blahaj</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BENTO BOX 2 y 3: INTERESTS & FUN FACTS -->
+                <div class="bento-split">
+                    
+                    <div class="bento-card interests-card">
+                        <div class="card-header">
+                            <div class="header-icon"><i class="fas fa-star"></i></div>
+                            <h2 class="card-title">INTERESES</h2>
+                        </div>
+                        <div class="pills-container">
+                            <span class="pill">Redes</span>
+                            <span class="pill">Ciberseguridad</span>
+                            <span class="pill">Homelab</span>
+                            <span class="pill">Linux</span>
+                            <span class="pill">Programación</span>
+                            <span class="pill">Anime</span>
+                            <span class="pill">Música</span>
+                            <span class="pill">Juegos</span>
+                            <span class="pill">Espacio</span>
+                            <span class="pill">Hardware</span>
+                        </div>
+                    </div>
+
+                    <div class="bento-card funfacts-card">
+                        <div class="card-header">
+                            <div class="header-icon"><i class="fas fa-cube"></i></div>
+                            <h2 class="card-title">DATOS CURIOSOS</h2>
+                        </div>
+                        
+                        <!-- Mini Gif decorativo en facts -->
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <img src="https://media.tenor.com/fA1ebh_L3oUAAAAi/anime-aesthetic.gif" alt="Aesthetic setup" style="border-radius: 8px; width: 100%; max-height: 90px; object-fit: cover; border: 1px solid rgba(255,255,255,0.05);">
+                        </div>
+
+                        <ul class="facts-list">
+                            <li><i class="fas fa-keyboard"></i> Coleccionista de teclados mecánicos.</li>
+                            <li><i class="fas fa-moon"></i> Altamente productivo a las 3 AM.</li>
+                            <li><i class="fas fa-headphones"></i> Escucho música 24/7.</li>
+                            <li><i class="fas fa-bolt"></i> Caos mínimo, complejidad controlada.</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- BENTO BOX 4: REDES SOCIALES -->
+                <div class="bento-card services-card">
+                    <div class="card-header">
+                        <div class="header-icon"><i class="fas fa-share-nodes"></i></div>
+                        <h2 class="card-title">MIS REDES</h2>
+                    </div>
+                    <div class="social-grid">
+                        <a href="https://github.com/Jarednnnn/perfil" target="_blank" class="social-btn"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://discord.gg/qPV9nCSk" target="_blank" class="social-btn"><i class="fab fa-discord"></i> Discord</a>
+                        <a href="https://www.instagram.com/jared.nnnnn?igsh=MTF1dWZnYmg2a3JmNw==" target="_blank" class="social-btn"><i class="fab fa-instagram"></i> Instagram</a>
+                        <a href="https://steamcommunity.com/id/Jaredofc/" target="_blank" class="social-btn"><i class="fab fa-steam"></i> Steam</a>
+                        <a href="https://www.reddit.com/user/Impossible-Buyer7190/" target="_blank" class="social-btn"><i class="fab fa-reddit"></i> Reddit</a>
+                        <a href="https://open.spotify.com/user/31hywltnkkobrsczepvz3vygwxeu" target="_blank" class="social-btn"><i class="fab fa-spotify"></i> Spotify</a>
+                        <a href="https://www.roblox.com/es/users/1125736017/profile" target="_blank" class="social-btn"><i class="fas fa-cube"></i> Roblox</a>
+                        <a href="https://www.roblox.com/es/users/1465069594/profile" target="_blank" class="social-btn"><i class="fas fa-cube"></i> Roblox ALT</a>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Librería Particles.js para el fondo interactivo -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
