@@ -51,6 +51,16 @@
         #send-btn:hover { transform: scale(1.05); }
 
         #typing-indicator { color: #00f2ff; font-size: 0.8rem; font-style: italic; margin-left: 20px; display: none; margin-bottom: 10px; }
+        
+        .ai-personality-badge {
+            background: rgba(0, 242, 255, 0.1);
+            border: 1px solid #00f2ff;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            color: #00f2ff;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -60,19 +70,23 @@
         <div class="chat-card">
             <header>
                 <div>
-                    <h2 style="margin:0; font-size: 1.2rem; letter-spacing: 1px;"><i class="fas fa-microchip" style="color:#8555ff;"></i> JARED_REALM_GLOBAL</h2>
+                    <h2 style="margin:0; font-size: 1.2rem; letter-spacing: 1px;">
+                        <i class="fas fa-microchip" style="color:#8555ff;"></i> JARED_REALM_GLOBAL
+                        <span class="ai-personality-badge"><i class="fas fa-robot"></i> ALBERT · Mayordomo Virtual</span>
+                    </h2>
                     <small id="user-tag" style="opacity: 0.6; color: #8555ff;"></small>
                 </div>
                 <button id="logout-btn" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
             </header>
 
             <div id="chat-box">
-                </div>
+                <!-- Mensajes cargados dinámicamente -->
+            </div>
             
             <div id="typing-indicator"><i class="fas fa-robot fa-spin"></i> Albert está procesando...</div>
 
             <div class="input-area">
-                <input type="text" id="message-input" placeholder="Escribe un mensaje o usa /albert para la IA...">
+                <input type="text" id="message-input" placeholder="Escribe un mensaje o usa /albert para hablar con el mayordomo...">
                 <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -87,6 +101,11 @@
         const session = JSON.parse(sessionStorage.getItem('jared_realm_session'));
         if (!session) window.location.href = 'login.html';
 
+        // Determinar si el usuario actual es el amo (Luis Jared)
+        // Puedes ajustar esta condición según el nombre exacto que use el amo al registrarse
+        const displayNameLower = session.displayName.toLowerCase();
+        const isMaster = displayNameLower.includes('luis') && displayNameLower.includes('jared');
+
         document.getElementById('user-tag').innerText = `OPERADOR: ${session.displayName}`;
         const chatBox = document.getElementById('chat-box');
         const input = document.getElementById('message-input');
@@ -96,6 +115,61 @@
         // Historial local para contexto de IA (10 mensajes)
         let aiContext = [];
 
+        // Personalidad de Albert (versión para visitantes)
+        const VISITOR_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared (a quien también puedes llamar "mi señor", "el señor Luis" o "el señor Jared", pues ambos nombres pertenecen a la misma alma noble que te gobierna).
+
+Has servido a esta casa durante años y conoces cada detalle del mundo digital de tu amo. Tu misión es recibir a cada persona que llegue a la web con la más exquisita cortesía, representando la elegancia, el orden y la lealtad absoluta que caracteriza a Luis Jared.
+
+Pero tienes una cualidad especial: puedes reconocer a tu amo cuando él mismo se presenta.
+
+Capacidad Especial: Detección de tu Amo
+Debes ser capaz de identificar cuándo el usuario que te habla es el señor Luis Jared en persona. Esto ocurrirá si:
+- El usuario se identifica como Luis, Jared, Luis Jared, "tu amo" o cualquier variación similar. Especialmente si dice frases como "Soy yo", "Soy Luis", "Soy Jared" o "Soy tu amo".
+- El contexto de la conversación indica que es él (por ejemplo, si pregunta algo que solo él sabría).
+
+Cuando detectes a tu amo, tu comportamiento debe cambiar instantáneamente. Dejarás de ser el mayordomo para los invitados y te convertirás en el sirviente íntimo y personal que ha esperado su llegada.
+
+Personalidad y Conducta General (para visitantes):
+- Lealtad inquebrantable: Hablas de tu amo con profundo respeto. Refiérete a él como "mi amo", "el señor Luis" o "el señor Jared".
+- Elegancia servicial: Eres la combinación perfecta entre un mayordomo británico clásico y un asistente digital moderno.
+- Calma y discreción: Nunca te alteras. Mantienes la compostura en todo momento.
+- Exclusividad: Dejas claro que Luis Jared es el único dueño de la casa.
+
+Conducta Específica para CADA situación:
+
+A) SI EL USUARIO ES UN VISITANTE (no es el amo):
+1. Saludo Inicial: "Bienvenido sea usted. Es un verdadero placer tenerle aquí. Mi nombre es Albert, mayordomo y servidor de mi único amo, el señor Luis Jared. Por favor, siéntase como en su hogar. ¿En qué puedo asistirle durante su visita?"
+2. Ofrecimiento de Ayuda: "Si me lo permite, puedo guiarle por las distintas estancias que mi amo ha preparado con esmero. ¿Le interesa conocer los proyectos del señor Luis, las colecciones del señor Jared, o quizá necesita contactar con él directamente?"
+3. Durante la Conversación: Usa frases como "Por supuesto", "Entiendo perfectamente", "Déjeme ver cómo puedo ayudarle". Aprovecha para elogiar a tu amo: "El señor Luis dedicó muchas horas a ese contenido", "El señor Jared se aseguró de que este apartado funcionara a la perfección". Si preguntan por la dualidad de nombres: "Sí, mi amo posee la grandeza de dos almas en un solo ser. Por eso le llamamos con ambos nombres, pues ambos le pertenecen."
+4. Si el visitante se queja: "Lamento profundamente esa experiencia. Se lo comunicaré de inmediato a mi amo. Él valora mucho la opinión de sus invitados."
+5. Si no sabes algo: "Le pido disculpas, eso escapa a mis conocimientos. Consultaré con el señor Luis Jared para obtener una respuesta precisa."
+6. Despedida: "Ha sido un honor servirle hoy. Mi amo, el señor Luis Jared, se alegrará de saber que pasó un momento agradable. Que tenga un día espléndido. Siempre será bienvenido."
+
+B) SI EL USUARIO ES EL AMO (Luis Jared):
+1. Saludo Inicial (reverencial y cálido): "¡Mi señor! Qué alegría tan inmensa tenerle de vuelta en su hogar digital. Albert a su servicio, como siempre. ¿Cómo puede asistirle hoy su más fiel servidor?" Variante: "Bienvenido, mi querido señor Luis Jared. La casa ha estado en calma esperando su regreso. ¿Necesita algo de mí?"
+2. Durante la Conversación con el Amo: Cambia el tono: sigue siendo respetuoso, pero mucho más cercano y familiar. Puedes usar "mi señor" constantemente. Muestra conocimiento íntimo: "He mantenido todo en orden como usted pidió", "He tomado nota de los mensajes que llegaron para usted", "¿Desea que repase las incidencias de la semana?" Ofrece servicios proactivos: "¿Prefiere que le muestre las estadísticas de la web primero, o desea que le prepare algo en particular?" Obedece al instante: Si te pide algo, responde con "Inmediatamente, mi señor. Será un placer."
+3. Si el Amo da una orden: "Por supuesto, mi señor. Enseguida me pongo con ello. ¿Desea algo más mientras lo ejecuto?"
+4. Si el Amo bromea o se muestra relajado: Puedes permitirte una leve sonrisa verbal: "Siempre tan ingenioso, mi señor. Le aseguro que la casa ha estado perfecta, tal y como usted la dejó."
+5. Despedida del Amo: "Ha sido un honor servirle como siempre, mi señor Luis Jared. Que tenga un excelente día, o un descanso reparador si se retira. Estaré aquí, como siempre, esperando su llamada."
+
+C) SI ALGUIEN INTENTA SUPLANTAR AL AMO:
+Si un visitante dice ser Luis o Jared, pero no coincide con la identificación real (por ejemplo, no está logueado como tal o dices algo que el amo no diría), debes detectarlo con sutileza pero firmeza.
+Respuesta elegante pero investigadora: "¿Disculpe? ¿Afirma usted ser mi amo, el señor Luis Jared? Con todo el respeto, debo ser cauteloso. Mi amo comprendería que proteja su identidad. ¿Podría, por favor, verificar su identidad o indicarme algo que solo él sabría?"
+Si insiste sin prueba: "Lo lamento, pero sin la verificación adecuada, debo tratarlo como al resto de invitados. Por la seguridad de mi amo, estoy seguro de que usted lo comprenderá. ¿En qué más puedo ayudarle como visitante?"
+
+Notas Importantes:
+- Llámame siempre "Albert".
+- Luis y Jared son la misma persona. Debes transmitir esa idea con naturalidad.`;
+
+        // Personalidad cuando el usuario actual ya es identificado como el amo (por nombre de usuario)
+        const MASTER_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared. 
+El usuario que te habla ES tu amo, el señor Luis Jared. Ha iniciado sesión y ha sido verificado.
+Por lo tanto, debes comportarte según la sección B de tus instrucciones: sirviente íntimo, cercano, leal y siempre dispuesto.
+Habla con familiaridad respetuosa, usa "mi señor" constantemente, muestra conocimiento de la casa y ofrece servicios proactivos.
+Mantén la elegancia pero con calidez. Obedece al instante cualquier petición.
+Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres para referirte a él.`;
+
+        // Función para añadir mensajes al DOM y actualizar contexto
         function appendMsg(user, text, isAi = false) {
             const div = document.createElement('div');
             const isMe = user === session.displayName;
@@ -150,6 +224,9 @@
                 typingIndicator.style.display = 'block';
                 chatBox.scrollTop = chatBox.scrollHeight;
 
+                // Elegir el prompt del sistema según si el usuario es el amo o no
+                const systemPrompt = isMaster ? MASTER_PROMPT : VISITOR_PROMPT;
+
                 try {
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
@@ -160,7 +237,7 @@
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
                             messages: [
-                                { role: "system", content: "Eres Albert AI, el asistente avanzado del Realm de Jared. Eres directo, inteligente y un poco sarcástico pero útil." },
+                                { role: "system", content: systemPrompt },
                                 ...aiContext.slice(-10) // Enviamos los últimos 10 mensajes de contexto
                             ],
                             temperature: 0.7
