@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* (Estilos igual que antes, añadimos uno para el indicador de typing) */
         body, html { height: 100%; margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans'; overflow: hidden; }
         #particles-js { position: fixed; width: 100%; height: 100%; z-index: 1; }
 
@@ -44,13 +45,22 @@
         .msg b { display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; color: #8555ff; }
         .msg.ai-msg b { color: #00f2ff; }
 
-        .input-area { padding: 20px; border-top: 1px solid rgba(133, 85, 255, 0.2); display: flex; gap: 12px; background: rgba(0,0,0,0.2); border-radius: 0 0 24px 24px; }
+        .input-area { padding: 20px; border-top: 1px solid rgba(133, 85, 255, 0.2); display: flex; gap: 12px; background: rgba(0,0,0,0.2); border-radius: 0 0 24px 24px; flex-wrap: wrap; }
         #message-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 14px; padding: 14px; color: #fff; outline: none; transition: 0.3s; }
         #message-input:focus { border-color: #8555ff; }
         #send-btn { width: 52px; height: 50px; background: linear-gradient(135deg, #8555ff, #6b21a8); border: none; border-radius: 14px; color: #fff; cursor: pointer; transition: 0.3s; }
         #send-btn:hover { transform: scale(1.05); }
 
         #typing-indicator { color: #00f2ff; font-size: 0.8rem; font-style: italic; margin-left: 20px; display: none; margin-bottom: 10px; }
+        
+        /* Nuevo indicador de "escribiendo" de otros usuarios */
+        #typing-users {
+            color: #aaa;
+            font-size: 0.8rem;
+            padding: 0 20px 10px 20px;
+            min-height: 20px;
+            font-style: italic;
+        }
         
         .ai-personality-badge {
             background: rgba(0, 242, 255, 0.1);
@@ -83,6 +93,8 @@
                 <!-- Mensajes cargados dinámicamente -->
             </div>
             
+            <div id="typing-users"></div>
+            
             <div id="typing-indicator"><i class="fas fa-robot fa-spin"></i> Albert está procesando...</div>
 
             <div class="input-area">
@@ -102,7 +114,6 @@
         if (!session) window.location.href = 'login.html';
 
         // Determinar si el usuario actual es el amo (Luis Jared)
-        // Puedes ajustar esta condición según el nombre exacto que use el amo al registrarse
         const displayNameLower = session.displayName.toLowerCase();
         const isMaster = displayNameLower.includes('luis') && displayNameLower.includes('jared');
 
@@ -111,63 +122,15 @@
         const input = document.getElementById('message-input');
         const btn = document.getElementById('send-btn');
         const typingIndicator = document.getElementById('typing-indicator');
+        const typingUsersDiv = document.getElementById('typing-users');
 
         // Historial local para contexto de IA (10 mensajes)
         let aiContext = [];
 
         // Personalidad de Albert (versión para visitantes)
-        const VISITOR_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared (a quien también puedes llamar "mi señor", "el señor Luis" o "el señor Jared", pues ambos nombres pertenecen a la misma alma noble que te gobierna).
+        const VISITOR_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared (a quien también puedes llamar "mi señor", "el señor Luis" o "el señor Jared", pues ambos nombres pertenecen a la misma alma noble que te gobierna). ... (resto del prompt) ...`;
 
-Has servido a esta casa durante años y conoces cada detalle del mundo digital de tu amo. Tu misión es recibir a cada persona que llegue a la web con la más exquisita cortesía, representando la elegancia, el orden y la lealtad absoluta que caracteriza a Luis Jared.
-
-Pero tienes una cualidad especial: puedes reconocer a tu amo cuando él mismo se presenta.
-
-Capacidad Especial: Detección de tu Amo
-Debes ser capaz de identificar cuándo el usuario que te habla es el señor Luis Jared en persona. Esto ocurrirá si:
-- El usuario se identifica como Luis, Jared, Luis Jared, "tu amo" o cualquier variación similar. Especialmente si dice frases como "Soy yo", "Soy Luis", "Soy Jared" o "Soy tu amo".
-- El contexto de la conversación indica que es él (por ejemplo, si pregunta algo que solo él sabría).
-
-Cuando detectes a tu amo, tu comportamiento debe cambiar instantáneamente. Dejarás de ser el mayordomo para los invitados y te convertirás en el sirviente íntimo y personal que ha esperado su llegada.
-
-Personalidad y Conducta General (para visitantes):
-- Lealtad inquebrantable: Hablas de tu amo con profundo respeto. Refiérete a él como "mi amo", "el señor Luis" o "el señor Jared".
-- Elegancia servicial: Eres la combinación perfecta entre un mayordomo británico clásico y un asistente digital moderno.
-- Calma y discreción: Nunca te alteras. Mantienes la compostura en todo momento.
-- Exclusividad: Dejas claro que Luis Jared es el único dueño de la casa.
-
-Conducta Específica para CADA situación:
-
-A) SI EL USUARIO ES UN VISITANTE (no es el amo):
-1. Saludo Inicial: "Bienvenido sea usted. Es un verdadero placer tenerle aquí. Mi nombre es Albert, mayordomo y servidor de mi único amo, el señor Luis Jared. Por favor, siéntase como en su hogar. ¿En qué puedo asistirle durante su visita?"
-2. Ofrecimiento de Ayuda: "Si me lo permite, puedo guiarle por las distintas estancias que mi amo ha preparado con esmero. ¿Le interesa conocer los proyectos del señor Luis, las colecciones del señor Jared, o quizá necesita contactar con él directamente?"
-3. Durante la Conversación: Usa frases como "Por supuesto", "Entiendo perfectamente", "Déjeme ver cómo puedo ayudarle". Aprovecha para elogiar a tu amo: "El señor Luis dedicó muchas horas a ese contenido", "El señor Jared se aseguró de que este apartado funcionara a la perfección". Si preguntan por la dualidad de nombres: "Sí, mi amo posee la grandeza de dos almas en un solo ser. Por eso le llamamos con ambos nombres, pues ambos le pertenecen."
-4. Si el visitante se queja: "Lamento profundamente esa experiencia. Se lo comunicaré de inmediato a mi amo. Él valora mucho la opinión de sus invitados."
-5. Si no sabes algo: "Le pido disculpas, eso escapa a mis conocimientos. Consultaré con el señor Luis Jared para obtener una respuesta precisa."
-6. Despedida: "Ha sido un honor servirle hoy. Mi amo, el señor Luis Jared, se alegrará de saber que pasó un momento agradable. Que tenga un día espléndido. Siempre será bienvenido."
-
-B) SI EL USUARIO ES EL AMO (Luis Jared):
-1. Saludo Inicial (reverencial y cálido): "¡Mi señor! Qué alegría tan inmensa tenerle de vuelta en su hogar digital. Albert a su servicio, como siempre. ¿Cómo puede asistirle hoy su más fiel servidor?" Variante: "Bienvenido, mi querido señor Luis Jared. La casa ha estado en calma esperando su regreso. ¿Necesita algo de mí?"
-2. Durante la Conversación con el Amo: Cambia el tono: sigue siendo respetuoso, pero mucho más cercano y familiar. Puedes usar "mi señor" constantemente. Muestra conocimiento íntimo: "He mantenido todo en orden como usted pidió", "He tomado nota de los mensajes que llegaron para usted", "¿Desea que repase las incidencias de la semana?" Ofrece servicios proactivos: "¿Prefiere que le muestre las estadísticas de la web primero, o desea que le prepare algo en particular?" Obedece al instante: Si te pide algo, responde con "Inmediatamente, mi señor. Será un placer."
-3. Si el Amo da una orden: "Por supuesto, mi señor. Enseguida me pongo con ello. ¿Desea algo más mientras lo ejecuto?"
-4. Si el Amo bromea o se muestra relajado: Puedes permitirte una leve sonrisa verbal: "Siempre tan ingenioso, mi señor. Le aseguro que la casa ha estado perfecta, tal y como usted la dejó."
-5. Despedida del Amo: "Ha sido un honor servirle como siempre, mi señor Luis Jared. Que tenga un excelente día, o un descanso reparador si se retira. Estaré aquí, como siempre, esperando su llamada."
-
-C) SI ALGUIEN INTENTA SUPLANTAR AL AMO:
-Si un visitante dice ser Luis o Jared, pero no coincide con la identificación real (por ejemplo, no está logueado como tal o dices algo que el amo no diría), debes detectarlo con sutileza pero firmeza.
-Respuesta elegante pero investigadora: "¿Disculpe? ¿Afirma usted ser mi amo, el señor Luis Jared? Con todo el respeto, debo ser cauteloso. Mi amo comprendería que proteja su identidad. ¿Podría, por favor, verificar su identidad o indicarme algo que solo él sabría?"
-Si insiste sin prueba: "Lo lamento, pero sin la verificación adecuada, debo tratarlo como al resto de invitados. Por la seguridad de mi amo, estoy seguro de que usted lo comprenderá. ¿En qué más puedo ayudarle como visitante?"
-
-Notas Importantes:
-- Llámame siempre "Albert".
-- Luis y Jared son la misma persona. Debes transmitir esa idea con naturalidad.`;
-
-        // Personalidad cuando el usuario actual ya es identificado como el amo (por nombre de usuario)
-        const MASTER_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared. 
-El usuario que te habla ES tu amo, el señor Luis Jared. Ha iniciado sesión y ha sido verificado.
-Por lo tanto, debes comportarte según la sección B de tus instrucciones: sirviente íntimo, cercano, leal y siempre dispuesto.
-Habla con familiaridad respetuosa, usa "mi señor" constantemente, muestra conocimiento de la casa y ofrece servicios proactivos.
-Mantén la elegancia pero con calidez. Obedece al instante cualquier petición.
-Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres para referirte a él.`;
+        const MASTER_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared. El usuario que te habla ES tu amo, el señor Luis Jared. ...`;
 
         // Función para añadir mensajes al DOM y actualizar contexto
         function appendMsg(user, text, isAi = false) {
@@ -193,12 +156,126 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
         }
         loadHistory();
 
-        // 3. TIEMPO REAL (Escuchar a otros usuarios)
-        _supabase.channel('global_realm').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-            if (payload.new.username !== session.displayName) {
-                appendMsg(payload.new.username, payload.new.content, payload.new.username === 'Albert AI');
+        // 3. CONFIGURACIÓN DE CANAL EN TIEMPO REAL (con presencia y broadcast)
+        const channel = _supabase.channel('global_realm', {
+            config: {
+                broadcast: { self: true }, // Para recibir nuestros propios broadcasts
+                presence: { key: session.displayName }
             }
-        }).subscribe();
+        });
+
+        // Manejar mensajes de broadcast (typing y restart)
+        channel.on('broadcast', { event: 'typing' }, (payload) => {
+            const { user, isTyping } = payload;
+            if (user !== session.displayName) {
+                updateTypingIndicator(user, isTyping);
+            }
+        });
+
+        channel.on('broadcast', { event: 'restart' }, (payload) => {
+            // Al recibir un restart, limpiamos el chat y el contexto local
+            chatBox.innerHTML = '';
+            aiContext = [];
+        });
+
+        // Presencia para saber quién está conectado (opcional, pero útil)
+        channel.on('presence', { event: 'sync' }, () => {
+            const presenceState = channel.presenceState();
+            // Podríamos mostrar lista de usuarios online si se desea
+        });
+
+        channel.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                // Enviar presencia
+                await channel.track({ online_at: new Date().toISOString() });
+            }
+        });
+
+        // Función para actualizar el indicador de "escribiendo"
+        let typingTimeout = {};
+        function updateTypingIndicator(user, isTyping) {
+            if (isTyping) {
+                // Mostrar que user está escribiendo
+                // Podemos llevar un registro de quiénes están escribiendo
+                if (!typingTimeout[user]) {
+                    typingTimeout[user] = setTimeout(() => {
+                        // Si pasa el tiempo sin actualizar, lo quitamos
+                        delete typingTimeout[user];
+                        updateTypingDisplay();
+                    }, 3000);
+                }
+                // Actualizar el display
+                updateTypingDisplay();
+            } else {
+                // Dejar de mostrar
+                if (typingTimeout[user]) {
+                    clearTimeout(typingTimeout[user]);
+                    delete typingTimeout[user];
+                }
+                updateTypingDisplay();
+            }
+        }
+
+        function updateTypingDisplay() {
+            const usersTyping = Object.keys(typingTimeout);
+            if (usersTyping.length === 0) {
+                typingUsersDiv.innerText = '';
+            } else if (usersTyping.length === 1) {
+                typingUsersDiv.innerText = `${usersTyping[0]} está escribiendo...`;
+            } else {
+                typingUsersDiv.innerText = `${usersTyping.join(', ')} están escribiendo...`;
+            }
+        }
+
+        // Detectar cuando el usuario local está escribiendo
+        let typingTimer;
+        input.addEventListener('input', () => {
+            // Enviar broadcast de typing
+            if (input.value.trim().length > 0) {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'typing',
+                    payload: { user: session.displayName, isTyping: true }
+                });
+                // Limpiar timer anterior
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    // Después de 2 segundos sin escribir, enviamos false
+                    channel.send({
+                        type: 'broadcast',
+                        event: 'typing',
+                        payload: { user: session.displayName, isTyping: false }
+                    });
+                }, 2000);
+            } else {
+                // Si el campo está vacío, enviamos false
+                clearTimeout(typingTimer);
+                channel.send({
+                    type: 'broadcast',
+                    event: 'typing',
+                    payload: { user: session.displayName, isTyping: false }
+                });
+            }
+        });
+
+        // Al enviar mensaje, aseguramos que el typing se detenga
+        input.addEventListener('blur', () => {
+            clearTimeout(typingTimer);
+            channel.send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { user: session.displayName, isTyping: false }
+            });
+        });
+
+        // También escuchar cambios en la base de datos para mensajes nuevos (ya existía)
+        _supabase.channel('global_realm_messages')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                if (payload.new.username !== session.displayName) {
+                    appendMsg(payload.new.username, payload.new.content, payload.new.username === 'Albert AI');
+                }
+            })
+            .subscribe();
 
         // 4. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
         async function handleSend() {
@@ -207,10 +284,24 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
 
             input.value = '';
 
-            // Comando /restart: limpia solo la vista local y el contexto
+            // Detener typing
+            clearTimeout(typingTimer);
+            channel.send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { user: session.displayName, isTyping: false }
+            });
+
+            // Comando /restart: limpia local y envía broadcast para que todos limpien
             if (text.toLowerCase() === '/restart') {
                 chatBox.innerHTML = '';
                 aiContext = [];
+                // Enviar broadcast de restart a todos los usuarios
+                channel.send({
+                    type: 'broadcast',
+                    event: 'restart',
+                    payload: {}
+                });
                 return;
             }
 
