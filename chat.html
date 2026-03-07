@@ -3,242 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jared Realm - AI Chat</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Jared's Realm | Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f; min-height: 100vh; display: flex;
-            justify-content: center; align-items: center; padding: 15px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        #chat-section {
-            width: 100%; max-width: 420px; height: 90vh; max-height: 550px;
-            display: flex; flex-direction: column; background: rgba(20, 20, 30, 0.95);
-            padding: 25px; border-radius: 15px; border: 1px solid rgba(133, 85, 255, 0.3);
-            box-shadow: 0 0 30px rgba(133, 85, 255, 0.2);
-        }
-        .chat-header {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-            padding-bottom: 10px; border-bottom: 1px solid rgba(133,85,255,0.2);
-        }
-        .avatar {
-            width: 35px; height: 35px; border-radius: 50%;
-            background: linear-gradient(135deg, #8555ff, #f97316);
-            display: flex; align-items: center; justify-content: center; color: #fff;
-        }
-        .user-info { flex: 1; }
-        .user-info h3 { color: #fff; font-size: 0.95rem; margin: 0; }
-        .user-info p { color: #888; font-size: 0.7rem; margin: 2px 0 0; }
-        .logout-btn {
-            width: auto; padding: 6px 12px; font-size: 0.75rem; background: transparent;
-            border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer;
-        }
-        #chat-messages {
-            flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.4);
-            border-radius: 10px; margin-bottom: 10px; font-size: 0.85rem;
-        }
-        .message { margin-bottom: 8px; padding: 8px 12px; border-radius: 10px; max-width: 85%; }
-        .message-ai { background: rgba(133, 85, 255, 0.2); margin-right: auto; }
-        .message-user { background: rgba(74, 222, 128, 0.2); margin-left: auto; }
-        .message-sender { font-size: 0.7rem; color: #8555ff; margin-bottom: 3px; font-weight: 600; }
-        .message-user .message-sender { color: #4ade80; }
-        .message-text { color: #e0e0e0; line-height: 1.4; word-wrap: break-word; }
-        .chat-input-area { display: flex; gap: 8px; }
-        .chat-input-area input {
-            flex: 1; padding: 12px 14px; border-radius: 10px;
-            border: 1px solid rgba(133, 85, 255, 0.3); background: rgba(0, 0, 0, 0.4);
-            color: #fff; font-size: 0.95rem;
-        }
-        .chat-input-area input:focus { outline: none; border-color: #8555ff; }
-        .chat-input-area button {
-            width: auto; padding: 12px 15px; border-radius: 10px; border: none;
-            background: linear-gradient(135deg, #8555ff, #6b21a8); color: #fff; cursor: pointer;
-        }
+        body { background: #000; color: #fff; font-family: 'Plus Jakarta Sans'; margin: 0; }
+        .chat-wrapper { max-width: 900px; margin: 2rem auto; padding: 20px; position: relative; z-index: 10; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(133,85,255,0.3); padding-bottom: 1rem; }
+        #chat-box { height: 60vh; overflow-y: auto; background: rgba(10,10,30,0.6); border: 1px solid rgba(133,85,255,0.2); border-radius: 15px; padding: 20px; margin: 1.5rem 0; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(10px); }
+        .message { padding: 10px 15px; border-radius: 12px; background: rgba(255,255,255,0.05); border-left: 4px solid #8555ff; max-width: 80%; }
+        .message b { color: #8555ff; display: block; font-size: 0.8rem; text-transform: uppercase; }
+        .input-area { display: flex; gap: 10px; }
+        #message-input { flex: 1; padding: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; transition: 0.3s; }
+        #message-input:focus { border-color: #8555ff; }
+        #send-btn { padding: 0 25px; background: #8555ff; border: none; color: #fff; border-radius: 12px; cursor: pointer; font-weight: 800; }
+        #logout-btn { background: #ff4d4d; border: none; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <div id="chat-section">
-        <div class="chat-header">
-            <div class="avatar"><i class="fas fa-user"></i></div>
-            <div class="user-info">
-                <h3 id="current-user-name">Cargando...</h3>
-                <p>Chateando con Grok AI</p>
+    <div id="particles-js" style="position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1;"></div>
+    
+    <div class="chat-wrapper">
+        <header>
+            <div>
+                <h1 style="margin:0; font-size: 1.5rem;"><i class="fas fa-ghost"></i> Realm Chat</h1>
+                <span id="user-tag" style="font-size: 0.8rem; color: #8555ff;"></span>
             </div>
-            <button class="logout-btn" onclick="logout()">Salir</button>
-        </div>
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</button>
+        </header>
 
-        <div id="chat-messages"></div>
+        <div id="chat-box">
+            </div>
 
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMessage()">
-            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Escribe un mensaje en el Realm...">
+            <button id="send-btn">ENVIAR</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
     <script>
-        // 1. CONFIGURACIÓN DE SUPABASE Y GROQ
-        const supabaseUrl = 'https://ycghvncnbricgararymx.supabase.co'; 
-        const supabaseKey = 'sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        const GROQ_API_KEY = "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";
-        
-        let currentUser = null;
-        let chatHistory = []; // Solo para el contexto de la IA temporalmente
+        const session = JSON.parse(sessionStorage.getItem('jared_realm_session'));
+        if (session) {
+            document.getElementById('user-tag').textContent = "Operador: " + session.displayName;
 
-        function loadSession() {
-            const realmSession = sessionStorage.getItem('jared_realm_session');
-            if (!realmSession) {
-                window.location.href = 'login.html'; 
-                return false;
-            }
-            try {
-                const session = JSON.parse(realmSession);
-                currentUser = { 
-                    username: session.username, 
-                    displayName: session.displayName 
-                };
-                document.getElementById('current-user-name').textContent = currentUser.displayName;
-                return true;
-            } catch (e) {
-                window.location.href = 'login.html';
-                return false;
-            }
+            const chatBox = document.getElementById('chat-box');
+            const input = document.getElementById('message-input');
+            const btn = document.getElementById('send-btn');
+
+            // Función para renderizar mensajes
+            const appendMessage = (user, content) => {
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.innerHTML = `<b>${user}</b> <span>${content}</span>`;
+                chatBox.appendChild(div);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+
+            // Cargar mensajes iniciales y escuchar cambios
+            const loadMessages = async () => {
+                const { data } = await _supabase.from('messages').select('*').order('created_at', { ascending: true });
+                if (data) data.forEach(m => appendMessage(m.username, m.content));
+            };
+            loadMessages();
+
+            // Suscribirse a tiempo real (Opcional, requiere configuración en Supabase)
+            _supabase.channel('messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                appendMessage(payload.new.username, payload.new.content);
+            }).subscribe();
+
+            btn.onclick = async () => {
+                const val = input.value.trim();
+                if (val) {
+                    await window.saveMessage(session.displayName, val);
+                    input.value = '';
+                }
+            };
+
+            input.onkeypress = (e) => { if(e.key === 'Enter') btn.click(); };
         }
-
-        function logout() {
-            sessionStorage.removeItem('jared_realm_session');
-            window.location.href = 'login.html';
-        }
-
-        // 2. CARGAR HISTORIAL DESDE SUPABASE
-        async function loadChatHistory() {
-            const container = document.getElementById('chat-messages');
-            container.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">Cargando historial de la nube...</div>';
-
-            const { data, error } = await _supabase
-                .from('messages')
-                .select('*')
-                .order('created_at', { ascending: true });
-
-            container.innerHTML = ''; // Limpiamos
-
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#666;padding:20px;"><i class="fas fa-robot" style="font-size:1.5rem;color:#8555ff;margin-bottom:8px;display:block;"></i>¡Hola! Soy Grok AI. No hay historial previo.</div>';
-            } else {
-                // Filtramos para no mostrar los registros del sistema, solo los del chat
-                const mensajesDeChat = data.filter(msg => msg.username !== 'Sistema_Bot');
-                
-                mensajesDeChat.forEach(msg => {
-                    addMessageToUI(msg.username, msg.content, false);
-                    // Llenamos el contexto para la IA
-                    chatHistory.push({ sender: msg.username, text: msg.content });
-                });
-                container.scrollTop = container.scrollHeight;
-            }
-        }
-
-        // 3. GUARDAR MENSAJE EN SUPABASE
-        async function saveMessageToDB(sender, text) {
-            await _supabase.from('messages').insert([{ username: sender, content: text }]);
-        }
-
-        function addMessageToUI(sender, text, scroll) {
-            const container = document.getElementById('chat-messages');
-            const isAI = sender === 'AI';
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${isAI ? 'message-ai' : 'message-user'}`;
-            msgDiv.innerHTML = `
-                <div class="message-sender"><i class="fas ${isAI ? 'fa-robot' : 'fa-user'}"></i> ${isAI ? 'AI' : sender}</div>
-                <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
-            `;
-            
-            container.appendChild(msgDiv);
-            if (scroll) container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (!message || !currentUser) return;
-            
-            input.value = '';
-            input.focus();
-            
-            if (message.toLowerCase() === '/clear') {
-                // Opcional: Aquí podrías añadir lógica para borrar datos de Supabase si quisieras
-                document.getElementById('chat-messages').innerHTML = '<div style="text-align:center;color:#666;padding:20px;">Pantalla limpiada (Los datos siguen en la base de datos)</div>';
-                return;
-            }
-            
-            // 1. Mostrar y guardar el mensaje del usuario
-            addMessageToUI(currentUser.displayName, message, true);
-            chatHistory.push({ sender: currentUser.displayName, text: message });
-            await saveMessageToDB(currentUser.displayName, message);
-            
-            const container = document.getElementById('chat-messages');
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typing-indicator';
-            typingDiv.style.cssText = 'color:#888;font-style:italic;padding:5px;';
-            typingDiv.innerHTML = '<i class="fas fa-ellipsis-h"></i> Escribiendo...';
-            container.appendChild(typingDiv);
-            container.scrollTop = container.scrollHeight;
-            
-            // 2. Pedir respuesta a Grok AI
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json", 
-                        "Authorization": `Bearer ${GROQ_API_KEY}` 
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "system", content: "Eres Grok AI, un asistente útil y conversacional." },
-                            ...chatHistory.slice(-10).map(m => ({
-                                role: m.sender === 'AI' ? 'assistant' : 'user',
-                                content: m.text
-                            })),
-                            { role: "user", content: message }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 500
-                    })
-                });
-                
-                const data = await res.json();
-                const response = data.choices?.[0]?.message?.content || "Lo siento, no pude generar una respuesta.";
-                
-                document.getElementById('typing-indicator')?.remove();
-                
-                // 3. Mostrar y guardar la respuesta de la IA
-                addMessageToUI('AI', response, true);
-                chatHistory.push({ sender: 'AI', text: response });
-                await saveMessageToDB('AI', response);
-                
-            } catch (error) {
-                console.error('Chat error:', error);
-                document.getElementById('typing-indicator')?.remove();
-                addMessageToUI('AI', 'Error de conexión. Intenta de nuevo.', true);
-            }
-        }
-
-        window.onload = async function() {
-            if (loadSession()) {
-                // Registrar que el usuario entró al chat
-                await saveMessageToDB('Sistema_Bot', `El usuario ${currentUser.displayName} ha entrado al AI Chat.`);
-                
-                // Cargar el historial
-                await loadChatHistory();
-                document.getElementById('chat-input').focus();
-            }
-        };
     </script>
 </body>
 </html>
