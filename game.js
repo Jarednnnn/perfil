@@ -6,8 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const DEEPSEEK_API_KEY = "YOUR_DEEPSEEK_API_KEY";
 
     let supabase = null;
-    if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (window.supabase && SUPABASE_URL.startsWith('http')) {
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.warn("Supabase initialization failed (placeholders likely):", e);
+        }
     }
 
     // 2. STATE MANAGEMENT
@@ -226,28 +230,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 6. EVENT LISTENERS
-    document.getElementById('auth-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const userInp = document.getElementById('auth-email').value.trim();
-        const passInp = document.getElementById('auth-pass').value.trim();
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+        authForm.onsubmit = (e) => {
+            e.preventDefault();
+            const userInp = document.getElementById('auth-email').value.trim();
+            const passInp = document.getElementById('auth-pass').value.trim();
 
-        console.log("Attempting login with:", userInp);
+            console.log("Login clicked for:", userInp);
 
-        // Internal credential check
-        if (userInp.toLowerCase() === 'jared.nnnn' && passInp === 'teamomama') {
-            console.log("Login success!");
-            state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
-            document.getElementById('user-display').innerText = state.user.email;
-            
-            switchView('galaxy');
-            initControls();
-        } else {
-            console.error("Login failed: Invalid credentials");
-            alert('❌ Acceso Denegado: Usuario o contraseña incorrectos.');
-        }
-    });
+            if (userInp.toLowerCase() === 'jared.nnnn' && passInp === 'teamomama') {
+                console.log("Internal auth success");
+                state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
+                const userDisplay = document.getElementById('user-display');
+                if (userDisplay) userDisplay.innerText = state.user.email;
+                
+                switchView('galaxy');
+                initControls();
+            } else {
+                alert('❌ Acceso Denegado: Usuario o contraseña incorrectos.');
+            }
+            return false;
+        };
+    }
 
     document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchView('galaxy'));
+        btn.onclick = () => switchView('galaxy');
     });
 });
