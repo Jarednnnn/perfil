@@ -228,9 +228,21 @@ document.addEventListener("DOMContentLoaded", () => {
         planetName.innerText = `Sistema ${star.id}`;
         planetDesc.innerText = "Sincronizando con DeepSeek...";
 
+        // Local Fallback Lore (Generación procedimental local si la IA falla)
+        function getLocalLore() {
+            const types = ["helado", "volcánico", "gaseoso", "desértico", "oceánico", "selvático"];
+            const features = ["con anillos brillantes", "rodeado de lunas pequeñas", "con tormentas eternas", "habitado por microbios", "rico en cristales púrpuras"];
+            const typeInd = Math.floor(seededRandom(star.gridX) * types.length);
+            const featInd = Math.floor(seededRandom(star.gridY) * features.length);
+            return `Un planeta ${types[typeInd]} ${features[featInd]}. La atmósfera parece estable pero misteriosa.`;
+        }
+
         // DeepSeek AI Integration
         async function fetchLore() {
-            if (DEEPSEEK_API_KEY.includes("YOUR")) return;
+            if (DEEPSEEK_API_KEY.includes("YOUR")) {
+                planetDesc.innerText = getLocalLore();
+                return;
+            }
             
             try {
                 const response = await fetch("https://api.deepseek.com/chat/completions", {
@@ -243,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (máximo 20 palabras) para un planeta." },
+                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (máximo 15 palabras) para un planeta." },
                             { role: "user", content: `Crea una descripción corta para un planeta de color ${star.color} en el sistema ${star.id}.` }
                         ],
                         stream: false
@@ -251,19 +263,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 
                 const data = await response.json();
-                console.log("DeepSeek Output:", data);
 
                 if (data.choices && data.choices[0]) {
                     planetDesc.innerText = data.choices[0].message.content;
-                } else if (data.error) {
-                    planetDesc.innerText = `Error IA: ${data.error.message || "Falla técnica"}`;
-                    console.error("DeepSeek API Error:", data.error);
                 } else {
-                    planetDesc.innerText = "Error: Respuesta de IA incompleta.";
+                    console.warn("API Error, using fallback:", data.error);
+                    planetDesc.innerText = getLocalLore();
                 }
             } catch (e) {
-                console.error("DeepSeek Fetch Error:", e);
-                planetDesc.innerText = "Error de conexión con DeepSeek. ¿CORS o Red?";
+                console.error("DeepSeek Fetch Error, using fallback:", e);
+                planetDesc.innerText = getLocalLore();
             }
         }
         fetchLore();
