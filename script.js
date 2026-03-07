@@ -1,13 +1,12 @@
 // ==========================================
 // 1. CONFIGURACIÓN DE SUPABASE (CON TUS DATOS)
 // ==========================================
-// Aquí se aplican la URL y el Token que ya tenías configurados
 const supabaseUrl = 'https://ycghvncnbricgararymx.supabase.co'; 
 const supabaseKey = 'sb_publishable_jmzs7MJA0Ls4WDAzousW3g_9pvFjc00';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Función para insertar datos en la tabla 'messages' que creamos en el SQL Editor
-async function saveMessage(username, content) {
+// AGREGAMOS "window." para que la consola del navegador la encuentre
+window.saveMessage = async (username, content) => {
     const { data, error } = await _supabase
         .from('messages') 
         .insert([{ username: username, content: content }]);
