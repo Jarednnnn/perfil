@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jared Realm - Universe Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            overflow: hidden;
+            background: #000;
+            padding: 0;
+            margin: 0;
+        }
+        #game-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
+        }
+        .back-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-bg"></div>
+    <div id="particles-js"></div>
+
+    <div class="back-nav">
+        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
+    </div>
+
+    <div id="universe-ui">
+        <!-- Auth View -->
+        <div id="auth-view" class="modal-card" style="margin: 10vh auto;">
+            <h2 id="auth-title">Entrar al Universo</h2>
+            <form id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email" required>
+                <input type="password" id="auth-pass" placeholder="Password" required>
+                <div class="form-actions">
+                    <button type="submit" class="main-action-btn">Login</button>
+                    <button type="button" id="toggle-auth" class="secondary-btn">Crear cuenta</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Game HUD -->
+        <div id="game-hud" class="hidden" style="display: flex; flex-direction: column; width: 95vw; height: 95vh; margin: 2.5vh auto; gap: 1rem;">
+            <div class="hud-top">
+                <div class="hud-item"><i class="fas fa-coins"></i> <span id="hud-credits">100</span></div>
+                <div class="hud-item"><i class="fas fa-gas-pump"></i> <span id="hud-fuel">50</span>%</div>
+                <div class="hud-item"><i class="fas fa-user"></i> <span id="user-display">Invitado</span></div>
+            </div>
+            <div class="hud-center" style="background: rgba(0,0,0,0.6); border-radius: 20px; border: 1px solid var(--card-border); flex: 1; position: relative;">
+                <canvas id="galaxy-canvas"></canvas>
+            </div>
+            <div class="hud-bottom">
+                <div id="location-text">Navegando: Espacio Profundo</div>
+            </div>
+        </div>
+
+        <!-- Planet Detail Modal -->
+        <div id="planet-modal" class="modal-card hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 200;">
+            <button class="close-btn">&times;</button>
+            <div id="planet-canvas-container"></div>
+            <h3 id="planet-name">Planeta Progresivo</h3>
+            <p id="planet-desc">Cargando datos de la IA...</p>
+            <div class="planet-actions">
+                <button id="visit-planet" class="main-action-btn">Aterrizar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="game.js"></script>
+    <script>
+        // Start particles on this page too
+        if(window.particlesJS) {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#8555ff" },
+                    "opacity": { "value": 0.5, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": false },
+                    "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

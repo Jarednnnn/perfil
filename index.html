@@ -279,49 +279,6 @@
         </main>
     </div>
 
-    <!-- GAME OVERLAY & MODALS -->
-    <div id="game-overlay" class="game-hidden">
-        <div class="game-content">
-            <!-- Auth Modal -->
-            <div id="auth-modal" class="modal-card hidden">
-                <button class="close-btn">&times;</button>
-                <h2 id="auth-title">Entrar al Universo</h2>
-                <form id="auth-form">
-                    <input type="email" id="auth-email" placeholder="Email" required>
-                    <input type="password" id="auth-pass" placeholder="Password" required>
-                    <div class="form-actions">
-                        <button type="submit" class="main-action-btn">Login</button>
-                        <button type="button" id="toggle-auth" class="secondary-btn">Crear cuenta</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Game HUD -->
-            <div id="game-hud" class="hidden">
-                <div class="hud-top">
-                    <div class="hud-item"><i class="fas fa-coins"></i> <span id="hud-credits">100</span></div>
-                    <div class="hud-item"><i class="fas fa-gas-pump"></i> <span id="hud-fuel">50</span>%</div>
-                    <button id="exit-game" class="nav-btn">Salir</button>
-                </div>
-                <div class="hud-center">
-                    <canvas id="galaxy-canvas"></canvas>
-                </div>
-                <div class="hud-bottom">
-                    <div id="location-text">Navegando: Espacio Profundo</div>
-                </div>
-            </div>
-
-            <!-- Planet Detail Modal -->
-            <div id="planet-modal" class="modal-card hidden">
-                <button class="close-btn">&times;</button>
-                <div id="planet-canvas-container"></div>
-                <h3 id="planet-name">Planeta Progresivo</h3>
-                <p id="planet-desc">Cargando datos de la IA...</p>
-                <div class="planet-actions">
-                    <button id="visit-planet" class="main-action-btn">Aterrizar</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Librería Supabase y DeepSeek Logic -->
