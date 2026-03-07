@@ -200,17 +200,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // 6. EVENT LISTENERS
     document.getElementById('auth-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const userInp = document.getElementById('auth-email').value;
-        const passInp = document.getElementById('auth-pass').value;
+        const userInp = document.getElementById('auth-email').value.trim();
+        const passInp = document.getElementById('auth-pass').value.trim();
 
         // Internal credential check
         if (userInp === 'Jared.nnnn' && passInp === 'teamomama') {
             state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
             document.getElementById('user-display').innerText = state.user.email;
+            
+            // Success flow
             switchView('galaxy');
             initControls();
+            
+            // Force immediate resize and draw
+            galaxyCanvas.width = galaxyCanvas.parentElement.offsetWidth;
+            galaxyCanvas.height = galaxyCanvas.parentElement.offsetHeight;
+            requestAnimationFrame(drawGalaxy);
         } else {
-            alert('Credenciales incorrectas o cuenta no interna.');
+            alert('❌ Acceso Denegado: Usuario o contraseña incorrectos.');
         }
     });
 
