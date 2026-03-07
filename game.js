@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         universe: { x: 0, y: 0, zoom: 1 },
         stars: [],
         discoveredPlanets: {}, 
+        extraPlanets: [], // For the 100 planets per user
         isDragging: false,
         lastMouse: { x: 0, y: 0, canvasX: 0, canvasY: 0 },
         currentView: 'auth' // 'auth', 'galaxy', 'planet'
@@ -52,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let x = startX; x <= endX; x++) {
             for (let y = startY; y <= endY; y++) {
                 const seed = (x * 73856093) ^ (y * 19349663);
-                if (seededRandom(seed) > 0.94) {
+                // Increased density threshold from 0.94 to 0.85
+                if (seededRandom(seed) > 0.85) {
                     stars.push({
                         id: `${x},${y}`,
                         gridX: x,
@@ -65,6 +67,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
+        
+        // Add coordinates from extraPlanets if they are in view
+        state.extraPlanets.forEach(p => {
+            const screenX = p.x + state.universe.x + viewWidth/2;
+            const screenY = p.y + state.universe.y + viewHeight/2;
+            if (screenX > 0 && screenX < viewWidth && screenY > 0 && screenY < viewHeight) {
+                stars.push(p);
+            }
+        });
+
         return stars;
     }
 
@@ -141,6 +153,24 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (target) showPlanetDetails(target);
         });
+    }
+
+    function generate100Planets(userSeed) {
+        console.log("Generating 100 focal planets for user...");
+        const planets = [];
+        const range = 5000;
+        for (let i = 0; i < 100; i++) {
+            const seed = userSeed + i;
+            planets.push({
+                id: `Elite-${i}`,
+                x: (seededRandom(seed) - 0.5) * range,
+                y: (seededRandom(seed + 100) - 0.5) * range,
+                size: 8 + seededRandom(seed + 200) * 10,
+                color: `hsl(${seededRandom(seed + 300) * 360}, 100%, 70%)`,
+                isSpecial: true
+            });
+        }
+        state.extraPlanets = planets;
     }
 
     function switchView(view) {
@@ -224,27 +254,33 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         drawPlanet();
+        planetName.innerText = star.isSpecial ? `Soberanía Elite: ${star.id}` : `Sistema ${star.id}`;
+        planetDesc.innerText = "Sincronizando con Groq AI...";
 
-        planetName.innerText = `Sistema ${star.id}`;
-        planetDesc.innerText = "Sincronizando con DeepSeek...";
+        // Reset Q&A UI
+        const qaResponse = document.getElementById('qa-response');
+        if (qaResponse) qaResponse.innerText = "¿Qué quieres saber sobre este mundo?";
 
-        // Local Fallback Lore (Generación procedimental local si la IA falla)
-        function getLocalLore() {
-            const types = ["helado", "volcánico", "gaseoso", "desértico", "oceánico", "selvático"];
-            const features = ["con anillos brillantes", "rodeado de lunas pequeñas", "con tormentas eternas", "habitado por microbios", "rico en cristales púrpuras"];
-            const typeInd = Math.floor(seededRandom(star.gridX) * types.length);
-            const featInd = Math.floor(seededRandom(star.gridY) * features.length);
-            return `Un planeta ${types[typeInd]} ${features[featInd]}. La atmósfera parece estable pero misteriosa.`;
-        }
-
-        // AI Lore Integration (Ahora usando Groq)
-        async function fetchLore() {
+        // AI Lore Integration
+        async function fetchLore(query = null) {
             if (!GROQ_API_KEY || GROQ_API_KEY.includes("TU_")) {
-                planetDesc.innerText = getLocalLore();
+                planetDesc.innerText = query ? "Conexión IA requerida para preguntas." : "Configura GROQ_API_KEY para recibir lore.";
                 return;
             }
             
+            if (query) qaResponse.innerText = "Pensando...";
+            
             try {
+                const messages = [
+                    { role: "system", content: "Eres un explorador espacial experto. Crea lore inmersivo. Responde siempre en español." }
+                ];
+
+                if (!query) {
+                    messages.push({ role: "user", content: `Crea una descripción corta y épica (máximo 20 palabras) para un planeta de color ${star.color} en las coordenadas ${star.id}.` });
+                } else {
+                    messages.push({ role: "user", content: `Estamos en un planeta de color ${star.color} (${star.id}). El explorador pregunta: "${query}". Responde de forma inmersiva y qué se puede hacer allí.` });
+                }
+
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
@@ -253,28 +289,41 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "system", content: "Eres un explorador espacial experto. Crea una descripción corta (máximo 15 palabras) para un planeta." },
-                            { role: "user", content: `Crea una descripción corta para un planeta de color ${star.color} en el sistema ${star.id}.` }
-                        ],
-                        max_tokens: 100
+                        messages: messages,
+                        max_tokens: 150
                     })
                 });
                 
                 const data = await response.json();
 
                 if (data.choices && data.choices[0]) {
-                    planetDesc.innerText = data.choices[0].message.content;
-                } else {
-                    console.warn("AI Error, using fallback:", data.error);
-                    planetDesc.innerText = getLocalLore();
+                    const content = data.choices[0].message.content;
+                    if (query) {
+                        qaResponse.innerText = content;
+                    } else {
+                        planetDesc.innerText = content;
+                    }
                 }
             } catch (e) {
-                console.error("AI Fetch Error, using fallback:", e);
-                planetDesc.innerText = getLocalLore();
+                console.error("AI Error:", e);
+                planetDesc.innerText = "Error de comunicación galáctica.";
             }
         }
+        
+        // Initial Lore
         fetchLore();
+
+        // Setup Q&A listeners within the modal scope
+        const qaSend = document.getElementById('qa-send');
+        const qaInput = document.getElementById('qa-input');
+        
+        if (qaSend) {
+            qaSend.onclick = () => {
+                const question = qaInput.value.trim();
+                if (question) fetchLore(question);
+                qaInput.value = "";
+            };
+        }
     }
 
     // 6. EVENT LISTENERS
@@ -285,14 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const userInp = document.getElementById('auth-email').value.trim();
             const passInp = document.getElementById('auth-pass').value.trim();
 
-            console.log("Login clicked for:", userInp);
-
             if (userInp.toLowerCase() === 'jared.nnnn' && passInp === 'teamomama') {
-                console.log("Internal auth success");
                 state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
                 const userDisplay = document.getElementById('user-display');
                 if (userDisplay) userDisplay.innerText = state.user.email;
                 
+                generate100Planets(777); 
+
                 switchView('galaxy');
                 initControls();
             } else {
@@ -327,8 +375,30 @@ document.addEventListener("DOMContentLoaded", () => {
             fuelEl.innerText = currentFuel;
             creditsEl.innerText = currentCredits;
 
-            alert(`🚀 ¡Aterrizaje exitoso! Has obtenido 25 créditos. Combustible restante: ${currentFuel}%`);
+            // Rare Random Events (1% chance)
+            if (Math.random() < 0.01) {
+                alert(`⚠️ ENCUENTRO INESPERADO\nDetectando señal anómala...`);
+                fetchGroqEvent();
+            } else {
+                alert(`🚀 ¡Aterrizaje exitoso! Has obtenido 25 créditos.`);
+            }
             
+            async function fetchGroqEvent() {
+                if (!GROQ_API_KEY || GROQ_API_KEY.includes("TU_")) return;
+                try {
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [{ role: "user", content: "Genera un mini-diálogo (15 palabras) de un encuentro espacial épico." }]
+                        })
+                    });
+                    const d = await res.json();
+                    if (d.choices) alert(`👽 EVENTO: ${d.choices[0].message.content}`);
+                } catch(e){}
+            }
+
             if (supabase) {
                 try {
                     await supabase.from('profiles').update({ 
@@ -341,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             switchView('galaxy');
         } else {
-            alert("⚠️ ¡Combustible insuficiente para aterrizar!");
+            alert("⚠️ ¡Combustible insuficiente!");
         }
 
         btn.disabled = false;
