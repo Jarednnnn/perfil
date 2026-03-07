@@ -200,18 +200,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // 6. EVENT LISTENERS
     document.getElementById('auth-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        state.user = { id: 'dummy', email: document.getElementById('auth-email').value };
-        document.getElementById('user-display').innerText = state.user.email.split('@')[0];
-        switchView('galaxy');
-        initControls();
+        const userInp = document.getElementById('auth-email').value;
+        const passInp = document.getElementById('auth-pass').value;
+
+        // Internal credential check
+        if ((userInp === 'Jared.nnnn' || userInp === 'jared.nnnn@example.com') && passInp === 'teamomama') {
+            state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
+            document.getElementById('user-display').innerText = state.user.email;
+            switchView('galaxy');
+            initControls();
+        } else {
+            alert('Credenciales incorrectas o cuenta no interna.');
+        }
     });
 
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', () => switchView('galaxy'));
-    });
-
-    document.getElementById('toggle-auth')?.addEventListener('click', () => {
-        const title = document.getElementById('auth-title');
-        title.innerText = title.innerText === 'Entrar al Universo' ? 'Crear Cuenta' : 'Entrar al Universo';
     });
 });
