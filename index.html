@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jared-Realm - Inicio</title>
-    <!-- Google Fonts -->
+    <title>Jared's Realm | Inicio</title>
+
+    <link rel="icon" type="image/jpeg" href="https://i.pinimg.com/736x/ff/f5/53/fff5532c1ecb4866e45e5758104e20da.jpg">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-    <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- Contenedor de partículas/efectos en el fondo -->
     <div id="particles-js"></div>
 
     <div class="dashboard-wrapper">
-        <!-- HEADER PRINCIPAL -->
         <header class="top-nav">
             <div class="logo-area">
                 <i class="fas fa-meteor logo-icon"></i>
@@ -25,7 +24,6 @@
                     <span class="logo-title">jared-realm</span>
                     <span class="logo-subtitle">ジャレッド領域</span>
                 </div>
-                <!-- GAME LOGIN BUTTON -->
                 <button id="game-auth-btn" class="nav-btn" style="margin-left: 15px; font-size: 0.8rem; padding: 0.4rem 1rem;">
                     <i class="fas fa-user-astronaut"></i> Login
                 </button>
@@ -34,12 +32,10 @@
 
         <main class="dashboard-grid">
             
-            <!-- ====== COLUMNA IZQUIERDA: PERFIL ====== -->
             <aside class="profile-sidebar">
                 <div class="banner-img" style="background-image: url('https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXF1d2M5NW5ocHc5eWV5a2EwOWF4dHoyOXl3ZDljM3o2MnoyOHY2aiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RKp3DW2ZwDlVS/giphy.gif');"></div>
                 <div class="profile-info-box">
                     <div class="avatar-container">
-                        <!-- Imagen de avatar (DiceBear para evitar links rotos, estilo anime/vector) -->
                         <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2I4bWNrZXpzMG9ldW41eDV4eDE0bnZ2ZGQybXIwa3FhcWN3d2xscyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mTxQlVm7Q6wrL5f9O5/giphy.gif" alt="Avatar" class="avatar-img">
                         <div class="status-indicator"></div>
                         <div class="status-bubble"><img src="https://media.tenor.com/_q1Z3Tj5FQQAAAAi/bocchi-the-rock-bocchi.gif" alt="gif" style="height: 18px; width: 18px; vertical-align: middle; border-radius: 4px; margin-right: 4px; object-fit: cover;"> ¡Bienvenido a mi reino digital!</div>
@@ -69,12 +65,10 @@
                         <span class="tag nerd-tag"><span class="dot"></span> Nerd</span>
                     </div>
 
-                    <!-- Mini Gif decorativo en sidebar -->
                     <div style="text-align: center; margin-bottom: 20px;">
                         <img src="https://media.tenor.com/_q1Z3Tj5FQQAAAAi/bocchi-the-rock-bocchi.gif" alt="Bocchi Headpat" style="border-radius: 10px; width: 100%; max-height: 80px; object-fit: cover; opacity: 0.8;">
                     </div>
                     
-                    <!-- Running Pokemons -->
                     <div class="pokemon-marquee" style="margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
                         <marquee direction="left" scrollamount="4" behavior="scroll">
                             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="Pikachu" style="height: 35px; margin-right: 20px; image-rendering: pixelated;">
@@ -87,11 +81,9 @@
                         </marquee>
                     </div>
 
-                    <!-- Spotify Widget -->
                     <div class="spotify-widget">
                         <div class="spotify-logo"><i class="fab fa-spotify"></i> Spotify - Mi Playlist</div>
                         <div class="spotify-playlist">
-                            <!-- Canción 1 -->
                             <div class="track-info active-track">
                                 <div class="track-number">1</div>
                                 <img src="https://i.pinimg.com/736x/db/69/83/db698334e90cb9a7d9166aff560436dd.jpg" alt="Album" class="track-img">
@@ -103,7 +95,6 @@
                                     <div class="bar"></div><div class="bar"></div><div class="bar"></div>
                                 </div>
                             </div>
-                            <!-- Canción 2 -->
                             <div class="track-info">
                                 <div class="track-number">2</div>
                                 <img src="https://i.pinimg.com/736x/db/69/83/db698334e90cb9a7d9166aff560436dd.jpg" alt="Album" class="track-img">
@@ -112,7 +103,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 3 -->
                             <div class="track-info">
                                 <div class="track-number">3</div>
                                 <img src="https://i.pinimg.com/webp/736x/fe/6a/88/fe6a88de23e425a99d1f83ac2d1f85a3.webp" alt="Album" class="track-img">
@@ -121,7 +111,6 @@
                                     <div class="track-artist">Childish Gambino</div>
                                 </div>
                             </div>
-                            <!-- Canción 4 -->
                             <div class="track-info">
                                 <div class="track-number">4</div>
                                 <img src="https://i.pinimg.com/webp/736x/1e/eb/e3/1eebe34cd5ab0d3294ec524f0354e97e.webp" alt="Album" class="track-img">
@@ -130,7 +119,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 5 -->
                             <div class="track-info">
                                 <div class="track-number">5</div>
                                 <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
@@ -139,7 +127,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 6 -->
                             <div class="track-info">
                                 <div class="track-number">6</div>
                                 <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
@@ -148,7 +135,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 7 -->
                             <div class="track-info">
                                 <div class="track-number">7</div>
                                 <img src="https://i.pinimg.com/736x/19/a5/8a/19a58ab13a6c821738ffab6fa043e6a4.jpg" alt="Album" class="track-img">
@@ -157,7 +143,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 8 -->
                             <div class="track-info">
                                 <div class="track-number">8</div>
                                 <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
@@ -166,7 +151,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 9 -->
                             <div class="track-info">
                                 <div class="track-number">9</div>
                                 <img src="https://i.pinimg.com/736x/82/5c/79/825c796da4a760d88f3daff5528fd1eb.jpg" alt="Album" class="track-img">
@@ -175,7 +159,6 @@
                                     <div class="track-artist">A$AP Rocky</div>
                                 </div>
                             </div>
-                            <!-- Canción 10 -->
                             <div class="track-info">
                                 <div class="track-number">10</div>
                                 <img src="https://i.pinimg.com/webp/736x/1e/eb/e3/1eebe34cd5ab0d3294ec524f0354e97e.webp" alt="Album" class="track-img">
@@ -189,10 +172,8 @@
                 </div>
             </aside>
 
-            <!-- ====== COLUMNA DERECHA: CONTENIDO ====== -->
             <section class="main-content">
                 
-                <!-- BENTO BOX 1: ABOUT ME -->
                 <div class="bento-card about-card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fas fa-user"></i></div>
@@ -214,7 +195,6 @@
                     </div>
                 </div>
 
-                <!-- BENTO BOX 2 y 3: INTERESTS & FUN FACTS -->
                 <div class="bento-split">
                     
                     <div class="bento-card interests-card">
@@ -242,7 +222,6 @@
                             <h2 class="card-title">DATOS CURIOSOS</h2>
                         </div>
                         
-                        <!-- Mini Gif decorativo en facts -->
                         <div style="text-align: center; margin-bottom: 15px;">
                             <img src="https://media.tenor.com/fA1ebh_L3oUAAAAi/anime-aesthetic.gif" alt="Aesthetic setup" style="border-radius: 8px; width: 100%; max-height: 90px; object-fit: cover; border: 1px solid rgba(255,255,255,0.05);">
                         </div>
@@ -257,7 +236,6 @@
 
                 </div>
 
-                <!-- BENTO BOX 4: REDES SOCIALES -->
                 <div class="bento-card services-card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fas fa-share-nodes"></i></div>
@@ -281,10 +259,8 @@
 
     </div>
 
-    <!-- Librería Supabase y DeepSeek Logic -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
