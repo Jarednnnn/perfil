@@ -4,175 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jared's Realm | Login</title>
-
     <link rel="icon" type="image/jpeg" href="https://i.pinimg.com/736x/ff/f5/53/fff5532c1ecb4866e45e5758104e20da.jpg">
-
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            overflow: hidden;
-            background: #000;
-            padding: 0;
-            margin: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        #game-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
-        }
-        .back-nav {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-
-        /* ── LOGIN CARD ── */
-        #auth-view {
-            margin: 10vh auto;
-            max-width: 420px;
-            padding: 2.5rem 2rem;
-            background: rgba(10, 10, 30, 0.85);
-            border: 1px solid rgba(133, 85, 255, 0.25);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 0 40px rgba(133, 85, 255, 0.15);
-        }
-        #auth-view h2 {
-            text-align: center;
-            color: #fff;
-            margin: 0 0 8px 0;
-            font-size: 1.4rem;
-            letter-spacing: 0.5px;
-        }
-        #auth-view p.subtitle {
-            text-align: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.85rem;
-            margin: 0 0 2rem 0;
-        }
-        .auth-field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 1rem;
-        }
-        .auth-field label {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .auth-field input {
-            padding: 13px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(133, 85, 255, 0.3);
-            background: rgba(0,0,0,0.4);
-            color: #fff;
-            font-size: 1rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            outline: none;
-        }
-        .auth-field input:focus {
-            border-color: rgba(133, 85, 255, 0.7);
-            box-shadow: 0 0 0 3px rgba(133, 85, 255, 0.15);
-        }
-        .auth-field input.input-error {
-            border-color: rgba(239, 68, 68, 0.7);
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
-            animation: shake 0.35s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-        .auth-submit-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #8555ff, #6b21a8);
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 700;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-            margin-top: 0.5rem;
-            transition: opacity 0.2s, transform 0.1s;
-            letter-spacing: 0.3px;
-        }
-        .auth-submit-btn:hover { opacity: 0.9; }
-        .auth-submit-btn:active { transform: scale(0.98); }
-        .auth-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        /* ── ERROR INLINE ── */
-        #auth-inline-error {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #f87171;
-            font-size: 0.82rem;
-            font-weight: 600;
-        }
-        #auth-inline-error.visible {
-            display: flex;
-            animation: fadeInDown 0.25s ease forwards;
-        }
-        #auth-inline-error i { font-size: 0.9rem; flex-shrink: 0; color: #ef4444; }
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── SUCCESS TOAST ── */
-        #success-toast {
-            display: none;
-            position: fixed;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 22px;
-            border-radius: 14px;
-            background: rgba(5, 20, 10, 0.92);
-            border: 1px solid rgba(34, 197, 94, 0.5);
-            color: #86efac;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(12px);
-            white-space: nowrap;
-        }
-        #success-toast.visible {
-            display: flex;
-            animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        #success-toast i { color: #22c55e; font-size: 1.1rem; }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(-16px) scale(0.95); }
-            to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-        }
+        body { overflow: hidden; background: #000; padding: 0; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        #game-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%); }
+        .back-nav { position: fixed; top: 20px; right: 20px; z-index: 100; }
+        #auth-view { margin: 15vh auto; max-width: 420px; padding: 2.5rem 2rem; background: rgba(10, 10, 30, 0.85); border: 1px solid rgba(133, 85, 255, 0.25); border-radius: 20px; backdrop-filter: blur(20px); box-shadow: 0 0 40px rgba(133, 85, 255, 0.15); position: relative; z-index: 10; }
+        #auth-view h2 { text-align: center; color: #fff; margin: 0 0 8px 0; font-size: 1.4rem; letter-spacing: 0.5px; }
+        #auth-view p.subtitle { text-align: center; color: rgba(255,255,255,0.4); font-size: 0.85rem; margin: 0 0 2rem 0; }
+        .auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+        .auth-field label { color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .auth-field input { padding: 13px 16px; border-radius: 12px; border: 1px solid rgba(133, 85, 255, 0.3); background: rgba(0,0,0,0.4); color: #fff; font-size: 1rem; outline: none; transition: 0.2s; }
+        .auth-field input:focus { border-color: rgba(133, 85, 255, 0.7); box-shadow: 0 0 0 3px rgba(133, 85, 255, 0.15); }
+        .auth-submit-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #8555ff, #6b21a8); color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 0.5rem; transition: 0.2s; }
+        #auth-inline-error { display: none; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-size: 0.82rem; }
+        #auth-inline-error.visible { display: flex; }
+        #success-toast { display: none; position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; align-items: center; gap: 12px; padding: 14px 22px; border-radius: 14px; background: rgba(5, 20, 10, 0.92); border: 1px solid rgba(34, 197, 94, 0.5); color: #86efac; }
+        #success-toast.visible { display: flex; animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     </style>
 </head>
 <body>
     <div id="game-bg"></div>
-    <div id="particles-js"></div>
+    <div id="particles-js" style="position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1;"></div>
 
     <div id="success-toast">
         <i class="fas fa-circle-check"></i>
@@ -180,146 +37,63 @@
     </div>
 
     <div class="back-nav">
-        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
+        <a href="index.html" class="nav-btn" style="color:#fff; text-decoration:none;"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
     </div>
 
-    <div id="universe-ui" style="position: relative; z-index: 10;">
-        <div id="auth-view">
-            <h2>
-                <i class="fas fa-user-astronaut" style="color: #8555ff; margin-right: 10px;"></i>
-                Entrar a mi Realm
-            </h2>
-            <p class="subtitle">Introduce tus credenciales para continuar</p>
+    <div id="auth-view">
+        <h2><i class="fas fa-user-astronaut" style="color: #8555ff; margin-right: 10px;"></i>Entrar a mi Realm</h2>
+        <p class="subtitle">Introduce tus credenciales para continuar</p>
 
-            <form id="auth-form">
-                <div id="auth-inline-error">
-                    <i class="fas fa-circle-xmark"></i>
-                    <span id="auth-error-text">Usuario o contraseña incorrectos.</span>
-                </div>
-
-                <div class="auth-field">
-                    <label for="auth-email">Usuario</label>
-                    <input type="text" id="auth-email" placeholder="tu_usuario" autocomplete="username" required>
-                </div>
-                <div class="auth-field">
-                    <label for="auth-pass">Contraseña</label>
-                    <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" required>
-                </div>
-                <button type="submit" class="auth-submit-btn" id="auth-submit-btn">
-                    <i class="fas fa-rocket"></i> Iniciar sesión
-                </button>
-            </form>
-        </div>
+        <form id="auth-form">
+            <div id="auth-inline-error">
+                <i class="fas fa-circle-xmark"></i>
+                <span id="auth-error-text">Usuario o contraseña incorrectos.</span>
+            </div>
+            <div class="auth-field">
+                <label for="auth-email">Usuario</label>
+                <input type="text" id="auth-email" placeholder="tu_usuario" autocomplete="username" required>
+            </div>
+            <div class="auth-field">
+                <label for="auth-pass">Contraseña</label>
+                <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="auth-submit-btn" id="auth-submit-btn">
+                <i class="fas fa-rocket"></i> Iniciar sesión
+            </button>
+        </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
+    <script src="script.js"></script>
     <script>
         (function () {
-            const validUsers = {
-                'jared.nnnn': 'dGVhbW9tYW1h',  // teamomama
-                'cristian':   'c295Z2F5'         // soygay
-            };
+            const validUsers = { 'jared.nnnn': 'dGVhbW9tYW1h', 'cristian': 'c295Z2F5' };
+            function decodeB64(str) { try { return atob(str); } catch (e) { return ''; } }
 
-            function decodeB64(str) {
-                try { return atob(str); } catch (e) { return ''; }
-            }
-
-            function showError(msg) {
-                const errDiv  = document.getElementById('auth-inline-error');
-                const errText = document.getElementById('auth-error-text');
-                errText.textContent = msg;
-                errDiv.classList.remove('visible');
-                void errDiv.offsetWidth;
-                errDiv.classList.add('visible');
-                clearTimeout(errDiv._t);
-                errDiv._t = setTimeout(() => errDiv.classList.remove('visible'), 5000);
-            }
-
-            function markInputError(el) {
-                el.classList.remove('input-error');
-                void el.offsetWidth;
-                el.classList.add('input-error');
-                el.addEventListener('input', () => {
-                    el.classList.remove('input-error');
-                    document.getElementById('auth-inline-error').classList.remove('visible');
-                }, { once: true });
-            }
-
-            function showWelcomeAndRedirect(name) {
-                const t = document.getElementById('success-toast');
-                document.getElementById('success-msg').textContent = 'Bienvenido de vuelta, ' + name + ' \uD83D\uDC7E';
-                t.classList.add('visible');
-                setTimeout(() => {
-                    window.location.href = 'chat.html';
-                }, 1300);
-            }
-
-            // Si ya hay sesión activa, redirigir directo sin pasar por login
-            try {
-                const existing = sessionStorage.getItem('jared_realm_session');
-                if (existing) {
-                    JSON.parse(existing); // validar que el JSON es correcto
-                    window.location.href = 'chat.html';
-                }
-            } catch (e) {
-                sessionStorage.removeItem('jared_realm_session');
-            }
-
-            const form      = document.getElementById('auth-form');
-            const emailInp  = document.getElementById('auth-email');
-            const passInp   = document.getElementById('auth-pass');
-            const submitBtn = document.getElementById('auth-submit-btn');
+            const form = document.getElementById('auth-form');
+            const emailInp = document.getElementById('auth-email');
+            const passInp = document.getElementById('auth-pass');
 
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
-
                 const username = emailInp.value.trim();
                 const password = passInp.value;
 
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
-
-                setTimeout(() => {
-                    if (Object.prototype.hasOwnProperty.call(validUsers, username)) {
-                        const realPass = decodeB64(validUsers[username]);
-                        if (password === realPass) {
-                            // ✅ Correcto — guardar sesión y redirigir a chat.html
-                            const displayNames = { 'jared.nnnn': 'Jared', 'cristian': 'Cristian' };
-                            const displayName  = displayNames[username] || username;
-                            sessionStorage.setItem('jared_realm_session', JSON.stringify({ username, displayName }));
-                            showWelcomeAndRedirect(displayName);
-                            return;
-                        }
-                    }
-
-                    // ❌ Credenciales incorrectas
-                    markInputError(emailInp);
-                    markInputError(passInp);
+                if (validUsers[username] && decodeB64(validUsers[username]) === password) {
+                    const displayName = username === 'jared.nnnn' ? 'Jared' : 'Cristian';
+                    sessionStorage.setItem('jared_realm_session', JSON.stringify({ username, displayName }));
+                    
+                    document.getElementById('success-msg').textContent = 'Bienvenido, ' + displayName;
+                    document.getElementById('success-toast').classList.add('visible');
+                    
+                    setTimeout(() => { window.location.href = 'chat.html'; }, 1300);
+                } else {
+                    document.getElementById('auth-inline-error').classList.add('visible');
                     passInp.value = '';
-                    passInp.focus();
-                    showError('Usuario o contraseña incorrectos. Inténtalo de nuevo.');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Iniciar sesión';
-                }, 600);
-            });
-        })();
-    </script>
-
-    <script>
-        if (window.particlesJS) {
-            particlesJS("particles-js", {
-                "particles": {
-                    "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
-                    "color": { "value": "#8555ff" },
-                    "opacity": { "value": 0.5, "random": true },
-                    "size": { "value": 3, "random": true },
-                    "line_linked": { "enable": false },
-                    "move": { "enable": true, "speed": 0.5, "direction": "none", "random": true }
                 }
             });
-        }
+        })();
     </script>
 </body>
 </html>
