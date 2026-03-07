@@ -51,7 +51,6 @@
         #send-btn:hover { transform: scale(1.05); }
 
         #typing-indicator { color: #00f2ff; font-size: 0.8rem; font-style: italic; margin-left: 20px; display: none; margin-bottom: 10px; }
-        #typing-status { color: #888; font-size: 0.8rem; margin-left: 20px; display: none; margin-bottom: 10px; }
         
         .ai-personality-badge {
             background: rgba(0, 242, 255, 0.1);
@@ -85,7 +84,6 @@
             </div>
             
             <div id="typing-indicator"><i class="fas fa-robot fa-spin"></i> Albert está procesando...</div>
-            <div id="typing-status"></div>
 
             <div class="input-area">
                 <input type="text" id="message-input" placeholder="Escribe un mensaje o usa /albert para hablar con el mayordomo...">
@@ -112,7 +110,6 @@
         const input = document.getElementById('message-input');
         const btn = document.getElementById('send-btn');
         const typingIndicator = document.getElementById('typing-indicator');
-        const typingStatus = document.getElementById('typing-status');
 
         // Historial local para contexto de IA (10 mensajes)
         let aiContext = [];
@@ -195,60 +192,45 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
         }
         loadHistory();
 
-        // 3. TIEMPO REAL (Escuchar a otros usuarios) - MEJORADO
-        const channel = _supabase.channel('global_realm');
-        channel.on('postgres_changes', 
-            { event: 'INSERT', schema: 'public', table: 'messages' }, 
-            payload => {
-                console.log('Nuevo mensaje recibido:', payload);
-                // Solo agregar si el mensaje no es del usuario actual (ya lo mostramos al enviar)
-                if (payload.new.username !== session.displayName) {
-                    appendMsg(payload.new.username, payload.new.content, payload.new.username === 'Albert AI');
-                }
-            }
-        ).subscribe((status) => {
-            console.log('Suscripción a tiempo real:', status);
+        // 3. CONFIGURAR CANAL DE REALTIME (mensajes, typing y comandos)
+        const channel = _supabase.channel('global_realm', {
+            config: { broadcast: { self: false } } // No recibir nuestros propios broadcasts
         });
 
-        // 4. INDICADOR "ESCRIBIENDO" (broadcast)
-        const typingChannel = _supabase.channel('typing_indicator');
-        typingChannel.on('broadcast', { event: 'typing' }, ({ payload }) => {
-            if (payload.user !== session.displayName) {
-                typingStatus.innerText = `${payload.user} está escribiendo...`;
-                typingStatus.style.display = 'block';
-                // Ocultar después de 2 segundos sin nuevos eventos
-                clearTimeout(window.typingTimeout);
-                window.typingTimeout = setTimeout(() => {
-                    typingStatus.style.display = 'none';
-                }, 2000);
+        // Escuchar broadcasts de mensajes
+        channel.on('broadcast', { event: 'new_message' }, ({ payload }) => {
+            if (payload.username !== session.displayName) {
+                appendMsg(payload.username, payload.content, payload.username === 'Albert AI');
             }
-        }).subscribe();
-
-        // Detectar cuando el usuario está escribiendo
-        let typingTimer;
-        input.addEventListener('input', () => {
-            // Enviar broadcast de "escribiendo"
-            typingChannel.send({
-                type: 'broadcast',
-                event: 'typing',
-                payload: { user: session.displayName }
-            });
-            // Resetear timer para no saturar
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-                // Opcional: enviar un evento de "dejó de escribir" si se desea
-            }, 1000);
         });
 
-        // 5. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
+        // Escuchar broadcasts de comando /restart
+        channel.on('broadcast', { event: 'restart' }, () => {
+            chatBox.innerHTML = '';
+            aiContext = [];
+        });
+
+        // Escuchar cambios en la tabla (respaldo por si broadcast falla)
+        channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+            if (payload.new.username !== session.displayName) {
+                appendMsg(payload.new.username, payload.new.content, payload.new.username === 'Albert AI');
+            }
+        });
+
+        channel.subscribe();
+
+        // 4. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
         async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
 
             input.value = '';
 
-            // Comando /restart: limpia solo la vista local y el contexto
+            // Comando /restart: envía broadcast a todos y limpia local
             if (text.toLowerCase() === '/restart') {
+                // Enviar broadcast de restart
+                channel.send({ type: 'broadcast', event: 'restart', payload: {} });
+                // Limpiar local también
                 chatBox.innerHTML = '';
                 aiContext = [];
                 return;
@@ -257,6 +239,8 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
             // Guardar y mostrar mensaje del usuario
             appendMsg(session.displayName, text);
             await window.saveMessage(session.displayName, text);
+            // Broadcast del mensaje para otros usuarios
+            channel.send({ type: 'broadcast', event: 'new_message', payload: { username: session.displayName, content: text } });
 
             // ¿Es un comando para Albert?
             if (text.toLowerCase().startsWith('/albert')) {
@@ -292,6 +276,8 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                     // Guardamos la respuesta de Albert en la DB para que sea GLOBAL
                     appendMsg('Albert AI', aiResponse, true);
                     await window.saveMessage('Albert AI', aiResponse);
+                    // Broadcast de la respuesta de Albert
+                    channel.send({ type: 'broadcast', event: 'new_message', payload: { username: 'Albert AI', content: aiResponse } });
 
                 } catch (error) {
                     console.error('Groq Error:', error);
