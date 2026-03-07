@@ -141,12 +141,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function switchView(view) {
         state.currentView = view;
-        authView.classList.toggle('hidden', view !== 'auth');
-        gameHud.classList.toggle('hidden', view !== 'galaxy');
-        planetModal.classList.toggle('hidden', view !== 'planet');
+        
+        // Use explicit display styles for maximum reliability
+        if (authView) authView.style.display = (view === 'auth') ? 'block' : 'none';
+        if (gameHud) gameHud.style.display = (view === 'galaxy') ? 'flex' : 'none';
+        if (planetModal) planetModal.style.setProperty('display', (view === 'planet' ? 'block' : 'none'), 'important');
 
         if (view === 'galaxy') {
-            requestAnimationFrame(drawGalaxy);
+            // Give layout a frame to update
+            setTimeout(() => {
+                if (galaxyCanvas && galaxyCanvas.parentElement) {
+                    galaxyCanvas.width = galaxyCanvas.parentElement.offsetWidth;
+                    galaxyCanvas.height = galaxyCanvas.parentElement.offsetHeight;
+                }
+                requestAnimationFrame(drawGalaxy);
+            }, 50);
         }
     }
 
@@ -204,18 +213,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const passInp = document.getElementById('auth-pass').value.trim();
 
         // Internal credential check
-        if (userInp === 'Jared.nnnn' && passInp === 'teamomama') {
+        if (userInp.toLowerCase() === 'jared.nnnn' && passInp === 'teamomama') {
             state.user = { id: 'jared-internal', email: 'Jared.nnnn' };
             document.getElementById('user-display').innerText = state.user.email;
             
             // Success flow
             switchView('galaxy');
             initControls();
-            
-            // Force immediate resize and draw
-            galaxyCanvas.width = galaxyCanvas.parentElement.offsetWidth;
-            galaxyCanvas.height = galaxyCanvas.parentElement.offsetHeight;
-            requestAnimationFrame(drawGalaxy);
         } else {
             alert('❌ Acceso Denegado: Usuario o contraseña incorrectos.');
         }
