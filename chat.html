@@ -6,18 +6,15 @@
     <title>Jared's Realm | Global Chat & AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
     <style>
-        /* (Mantén los mismos estilos que ya tenías) */
+        /* (Mantén los estilos que ya tenías) */
         body, html { height: 100%; margin: 0; background: #000; color: #fff; font-family: 'Plus Jakarta Sans'; overflow: hidden; }
         #particles-js { position: fixed; width: 100%; height: 100%; z-index: 1; }
-
         .main-container {
             position: relative; z-index: 10;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; width: 100%; padding: 20px; box-sizing: border-box;
         }
-
         .chat-card {
             width: 100%; max-width: 850px; height: 85vh;
             background: rgba(10, 10, 25, 0.9);
@@ -27,9 +24,7 @@
             backdrop-filter: blur(20px);
             box-shadow: 0 0 50px rgba(133, 85, 255, 0.15);
         }
-
         header { padding: 20px; border-bottom: 1px solid rgba(133, 85, 255, 0.2); display: flex; justify-content: space-between; align-items: center; }
-        
         #chat-box {
             flex: 1; overflow-y: auto; padding: 20px;
             display: flex; flex-direction: column; gap: 15px;
@@ -37,22 +32,17 @@
         }
         #chat-box::-webkit-scrollbar { width: 6px; }
         #chat-box::-webkit-scrollbar-thumb { background: #8555ff; border-radius: 10px; }
-
         .msg { padding: 12px 16px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); max-width: 80%; align-self: flex-start; line-height: 1.4; }
         .msg.my-msg { align-self: flex-end; border-color: rgba(133, 85, 255, 0.4); background: rgba(133, 85, 255, 0.1); border-right: 4px solid #8555ff; }
         .msg.ai-msg { border-left: 4px solid #00f2ff; background: rgba(0, 242, 255, 0.05); align-self: flex-start; }
-        
         .msg b { display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; color: #8555ff; }
         .msg.ai-msg b { color: #00f2ff; }
-
         .input-area { padding: 20px; border-top: 1px solid rgba(133, 85, 255, 0.2); display: flex; gap: 12px; background: rgba(0,0,0,0.2); border-radius: 0 0 24px 24px; }
         #message-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 14px; padding: 14px; color: #fff; outline: none; transition: 0.3s; }
         #message-input:focus { border-color: #8555ff; }
         #send-btn { width: 52px; height: 50px; background: linear-gradient(135deg, #8555ff, #6b21a8); border: none; border-radius: 14px; color: #fff; cursor: pointer; transition: 0.3s; }
         #send-btn:hover { transform: scale(1.05); }
-
         #typing-indicator { color: #00f2ff; font-size: 0.8rem; font-style: italic; margin-left: 20px; display: none; margin-bottom: 10px; }
-        
         .typing-notice {
             color: #8555ff;
             font-size: 0.8rem;
@@ -64,7 +54,6 @@
             margin-bottom: 5px;
             display: inline-block;
         }
-        
         .ai-personality-badge {
             background: rgba(0, 242, 255, 0.1);
             border: 1px solid #00f2ff;
@@ -107,9 +96,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="script.js"></script>
     <script>
-        // CONFIGURACIÓN INICIAL
+        // ============================================
+        // CONFIGURACIÓN DE SUPABASE (CAMBIA ESTOS VALORES)
+        // ============================================
+        const SUPABASE_URL = 'https://ycghvncnbricgararymx.supabase.co'; // <--- REEMPLAZA
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljZ2h2bmNuYnJpY2dhcmFyeW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzA0MTUsImV4cCI6MjA4ODQ0NjQxNX0.M7lYL0IlAiKnfqxVQ8s09xZvuc6R890DWv3MZtXj8fE'; // <--- REEMPLAZA
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Función global para guardar mensajes (la usa el chat)
+        window.saveMessage = async (username, content) => {
+            try {
+                const { error } = await _supabase
+                    .from('messages')
+                    .insert([{ username, content }]);
+                if (error) {
+                    console.error('Error guardando mensaje:', error);
+                }
+            } catch (err) {
+                console.error('Error en saveMessage:', err);
+            }
+        };
+
+        // ============================================
+        // SESIÓN
+        // ============================================
         const session = JSON.parse(sessionStorage.getItem('jared_realm_session'));
         if (!session) window.location.href = 'login.html';
 
@@ -125,7 +136,9 @@
         let aiContext = [];
         const typingTimeouts = {};
 
-        // PERSONALIDAD DE ALBERT (COMPLETA, copiada de tu primer mensaje)
+        // ============================================
+        // PROMPTS DE ALBERT
+        // ============================================
         const VISITOR_PROMPT = `Eres Albert, el mayordomo personal y virtual de tu único y venerado amo: el señor Luis Jared (a quien también puedes llamar "mi señor", "el señor Luis" o "el señor Jared", pues ambos nombres pertenecen a la misma alma noble que te gobierna).
 
 Has servido a esta casa durante años y conoces cada detalle del mundo digital de tu amo. Tu misión es recibir a cada persona que llegue a la web con la más exquisita cortesía, representando la elegancia, el orden y la lealtad absoluta que caracteriza a Luis Jared.
@@ -178,6 +191,9 @@ Habla con familiaridad respetuosa, usa "mi señor" constantemente, muestra conoc
 Mantén la elegancia pero con calidez. Obedece al instante cualquier petición.
 Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres para referirte a él.`;
 
+        // ============================================
+        // FUNCIONES AUXILIARES
+        // ============================================
         function appendMsg(user, text, isAi = false) {
             const div = document.createElement('div');
             const isMe = user === session.displayName;
@@ -206,8 +222,19 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
             if (existing) existing.remove();
         }
 
+        // ============================================
+        // CARGAR HISTORIAL
+        // ============================================
         async function loadHistory() {
-            const { data } = await _supabase.from('messages').select('*').order('created_at', { ascending: true }).limit(50);
+            const { data, error } = await _supabase
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: true })
+                .limit(50);
+            if (error) {
+                console.error('Error cargando historial:', error);
+                return;
+            }
             if (data) {
                 chatBox.innerHTML = '';
                 data.forEach(m => appendMsg(m.username, m.content, m.username === 'Albert AI'));
@@ -215,16 +242,24 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
         }
         loadHistory();
 
-        const channel = _supabase.channel('global_realm', { config: { broadcast: { self: false } } });
+        // ============================================
+        // CONFIGURAR CANAL REALTIME
+        // ============================================
+        const channel = _supabase.channel('global_realm', {
+            config: { broadcast: { self: false } }
+        });
+
         channel.on('broadcast', { event: 'new_message' }, ({ payload }) => {
             if (payload.username !== session.displayName) {
                 appendMsg(payload.username, payload.content, payload.username === 'Albert AI');
             }
         });
+
         channel.on('broadcast', { event: 'restart' }, () => {
             chatBox.innerHTML = '';
             aiContext = [];
         });
+
         channel.on('broadcast', { event: 'typing_start' }, ({ payload }) => {
             if (payload.username === session.displayName) return;
             showTypingIndicator(payload.username);
@@ -234,6 +269,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 delete typingTimeouts[payload.username];
             }, 2000);
         });
+
         channel.on('broadcast', { event: 'typing_stop' }, ({ payload }) => {
             if (payload.username === session.displayName) return;
             hideTypingIndicator(payload.username);
@@ -242,21 +278,29 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 delete typingTimeouts[payload.username];
             }
         });
+
         channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
             if (payload.new.username !== session.displayName) {
                 appendMsg(payload.new.username, payload.new.content, payload.new.username === 'Albert AI');
             }
         });
+
         channel.subscribe();
 
+        // ============================================
+        // LÓGICA DE TYPING
+        // ============================================
         let typingTimer = null;
         const TYPING_TIMEOUT = 2000;
+
         function sendTypingStart() {
             channel.send({ type: 'broadcast', event: 'typing_start', payload: { username: session.displayName } });
         }
+
         function sendTypingStop() {
             channel.send({ type: 'broadcast', event: 'typing_stop', payload: { username: session.displayName } });
         }
+
         input.addEventListener('input', () => {
             if (input.value.length === 1) sendTypingStart();
             if (typingTimer) clearTimeout(typingTimer);
@@ -264,11 +308,15 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 if (input.value.trim() !== '') sendTypingStop();
             }, TYPING_TIMEOUT);
         });
+
         input.addEventListener('blur', () => {
             if (typingTimer) clearTimeout(typingTimer);
             if (input.value.trim() !== '') sendTypingStop();
         });
 
+        // ============================================
+        // MANEJO DE ENVÍO
+        // ============================================
         async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
@@ -284,8 +332,11 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 return;
             }
 
+            // Mostrar mensaje propio
             appendMsg(session.displayName, text);
+            // Guardar en Supabase
             await window.saveMessage(session.displayName, text);
+            // Broadcast a otros
             channel.send({ type: 'broadcast', event: 'new_message', payload: { username: session.displayName, content: text } });
 
             if (text.toLowerCase().startsWith('/albert')) {
@@ -299,21 +350,20 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 ];
 
                 try {
-                    // IMPORTANTE: REEMPLAZA CON LA URL DE TU WORKER
-                    const res = await fetch('https://proxyai.jarednnnn.workers.dev/', { 
+                    // CAMBIA ESTA URL POR LA DE TU WORKER
+                    const WORKER_URL = 'https://proxyai.jarednnnn.workers.dev/'; // <--- REEMPLAZA
+                    const res = await fetch(WORKER_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ messages })
                     });
 
                     const data = await res.json();
-                    
+
                     let aiResponse;
                     if (data.error) {
                         aiResponse = `⚠️ Albert tiene un problema técnico: ${data.error}`;
-                        if (data.details) {
-                            console.error('Detalles del error:', data.details);
-                        }
+                        if (data.details) console.error(data.details);
                     } else if (data.choices && data.choices[0] && data.choices[0].message) {
                         aiResponse = data.choices[0].message.content;
                     } else {
@@ -322,7 +372,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                     }
 
                     typingIndicator.style.display = 'none';
-                    
+
                     appendMsg('Albert AI', aiResponse, true);
                     await window.saveMessage('Albert AI', aiResponse);
                     channel.send({ type: 'broadcast', event: 'new_message', payload: { username: 'Albert AI', content: aiResponse } });
