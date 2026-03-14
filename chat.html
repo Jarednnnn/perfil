@@ -110,7 +110,6 @@
     <script src="script.js"></script>
     <script>
         // 1. CONFIGURACIÓN Y SESIÓN
-        // La clave de GROQ YA NO ESTÁ AQUÍ, se usa el proxy de Google Apps Script
         const session = JSON.parse(sessionStorage.getItem('jared_realm_session'));
         if (!session) window.location.href = 'login.html';
 
@@ -352,7 +351,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
 
                 try {
                     // Llamada al proxy de Google Apps Script (NO a Groq directamente)
-                    const res = await fetch('https://script.google.com/macros/s/AKfycbz_y_CjJJHDlH2b4a0DmAomiwmDt5V1SEwH43KsQOsYVubi6atcPP7Q1CVXkyW-8Zg26w/exec', {
+                    const res = await fetch('https://script.google.com/macros/s/AKfycbwDlHfan0tAw4MjknO_rOUxRoknWdB_wKX1gV4zkCJGDJtDjofJ6QRv0FlY-xt3s8WLHQ/exec', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -360,12 +359,18 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                                 { role: 'system', content: systemPrompt },
                                 ...aiContext.slice(-10) // Últimos 10 mensajes de contexto
                             ]
-                        }),
-                        redirect: 'follow'
+                        })
                     });
 
+                    // Verificar si la respuesta es JSON válido
                     const data = await res.json();
-                    const aiResponse = data.choices?.[0]?.message?.content || "Albert está fuera de línea momentáneamente.";
+                    
+                    // Extraer la respuesta de Albert
+                    const aiResponse = data.choices?.[0]?.message?.content;
+                    
+                    if (!aiResponse) {
+                        throw new Error('Respuesta vacía o mal formada de Albert');
+                    }
                     
                     typingIndicator.style.display = 'none';
                     
@@ -378,7 +383,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 } catch (error) {
                     console.error('Error al llamar al proxy:', error);
                     typingIndicator.style.display = 'none';
-                    appendMsg('Albert AI', 'Error de conexión con mis núcleos de procesamiento.', true);
+                    appendMsg('Albert AI', 'Error de conexión con mis núcleos de procesamiento. (Detalles: ' + error.message + ')', true);
                 }
             }
         }
