@@ -260,7 +260,7 @@
 
                 try {
                     // Usamos Content-Type: text/plain para evitar el preflight CORS
-                    const res = await fetch('https://script.google.com/macros/library/d/14ga5JYrpeBCYxxB9Vm7rspWbUvA25073WGMR8a9g9hvpxXO6V1dNdmhb/2', {
+                    const res = await fetch('https://script.google.com/macros/s/AKfycbzY7p9L4qignQdQnNeLaDgZjrHy1OcSF29mBYYwz6XVZOtRT5AMmOw_cfXi5WquQ6OCOA/exec', {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain' }, // <-- CAMBIO CLAVE
                         body: JSON.stringify({ messages }) // El body sigue siendo JSON, pero el Content-Type es text/plain
