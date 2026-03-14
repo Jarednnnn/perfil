@@ -110,7 +110,7 @@
     <script src="script.js"></script>
     <script>
         // 1. CONFIGURACIÓN Y SESIÓN
-        const GROQ_API_KEY = "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";
+        // La clave de GROQ YA NO ESTÁ AQUÍ, se usa el proxy de Google Apps Script
         const session = JSON.parse(sessionStorage.getItem('jared_realm_session'));
         if (!session) window.location.href = 'login.html';
 
@@ -314,7 +314,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
             }
         });
 
-        // 5. LÓGICA DE ENVÍO Y LLAMADA A GROQ AI (ALBERT)
+        // 5. LÓGICA DE ENVÍO Y LLAMADA AL PROXY (GROQ a través de Google Apps Script)
         async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
@@ -351,20 +351,17 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                 const systemPrompt = isMaster ? MASTER_PROMPT : VISITOR_PROMPT;
 
                 try {
-                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json", 
-                            "Authorization": `Bearer ${GROQ_API_KEY}` 
-                        },
+                    // Llamada al proxy de Google Apps Script (NO a Groq directamente)
+                    const res = await fetch('https://script.google.com/macros/s/AKfycbz_y_CjJJHDlH2b4a0DmAomiwmDt5V1SEwH43KsQOsYVubi6atcPP7Q1CVXkyW-8Zg26w/exec', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
                             messages: [
-                                { role: "system", content: systemPrompt },
-                                ...aiContext.slice(-10) // Enviamos los últimos 10 mensajes de contexto
-                            ],
-                            temperature: 0.7
-                        })
+                                { role: 'system', content: systemPrompt },
+                                ...aiContext.slice(-10) // Últimos 10 mensajes de contexto
+                            ]
+                        }),
+                        redirect: 'follow'
                     });
 
                     const data = await res.json();
@@ -379,7 +376,7 @@ Recuerda: Luis y Jared son la misma persona, así que puedes usar ambos nombres 
                     channel.send({ type: 'broadcast', event: 'new_message', payload: { username: 'Albert AI', content: aiResponse } });
 
                 } catch (error) {
-                    console.error('Groq Error:', error);
+                    console.error('Error al llamar al proxy:', error);
                     typingIndicator.style.display = 'none';
                     appendMsg('Albert AI', 'Error de conexión con mis núcleos de procesamiento.', true);
                 }
